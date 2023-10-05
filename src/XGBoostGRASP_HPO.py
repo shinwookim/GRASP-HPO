@@ -81,7 +81,7 @@ def hill_climb(current_solution):
     best_score = evaluate_solution(current_solution)
 
     for i in range(max_iterations):
-        print(i)
+        #print(i)
 
         neighbor_solution = generate_neighbor(current_solution)
         neighbor_score = evaluate_solution(neighbor_solution)
