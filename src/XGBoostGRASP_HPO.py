@@ -1,6 +1,7 @@
 import uuid
 
-from sklearn.datasets import load_breast_cancer
+from sklearn.datasets import load_breast_cancer, load_digits
+from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from xgboost import XGBClassifier
@@ -12,10 +13,10 @@ import random
 def prepare_dataset(dataset):
     x = dataset.data
     y = dataset.target
-    return train_test_split(x, y, test_size=0.2, random_state=1)
+    return train_test_split(x, y, test_size=0.2,random_state=1)
 
 
-x_train, x_test, y_train, y_test = prepare_dataset(load_breast_cancer())
+x_train, x_test, y_train, y_test = prepare_dataset(load_digits())
 
 
 def evaluate_solution(params):
@@ -117,3 +118,8 @@ while not best_intermediate_combinations.empty():
 
 print("Hyperparameters: " + str(local_best_solution))
 print("Achieved best score: " + str(local_best_score))
+xgboost_classifier = XGBClassifier(**local_best_solution)
+scores = cross_val_score(xgboost_classifier,x_train,y_train,cv=5,error_score='raise')
+print(scores)
+print(scores.mean(),scores.std())
+
