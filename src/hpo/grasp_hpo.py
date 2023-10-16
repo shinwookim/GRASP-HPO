@@ -1,4 +1,4 @@
-from src.hpo.hpo_strategy import HPOStrategy
+from src.hpo.hpo_factory import HPOStrategy
 import uuid
 
 from sklearn.preprocessing import StandardScaler
