@@ -8,6 +8,7 @@ from xgboost import XGBClassifier
 from sklearn.metrics import f1_score
 from queue import PriorityQueue
 import random
+from phase2grasp import LocalSearch
 
 
 def prepare_dataset(dataset):
@@ -81,10 +82,9 @@ def hill_climb(current_solution):
     best_solution = current_solution
     best_score = evaluate_solution(current_solution)
 
-    for i in range(max_iterations):
-        #print(i)
+    for _ in range(max_iterations):
 
-        neighbor_solution = generate_neighbor(current_solution)
+        neighbor_solution = ls.generate_neighbor(current_solution)
         neighbor_score = evaluate_solution(neighbor_solution)
 
         if neighbor_score > best_score:
@@ -95,12 +95,8 @@ def hill_climb(current_solution):
     return best_score, best_solution
 
 
-def generate_neighbor(current_solution):
-    neighbor_solution = current_solution.copy()
-    param_to_perturb = random.choice(list(neighbor_solution.keys()))
-    neighbor_solution[param_to_perturb] = get_random_hyperparameter_value(param_to_perturb)
-    return neighbor_solution
-
+ls = LocalSearch(hyperparameter_ranges, ['n_estimators', 'max_depth'])
+ls.set_fn(0)
 
 outer_counter = 1
 print(str(outer_counter) + "---------")
@@ -122,4 +118,3 @@ xgboost_classifier = XGBClassifier(**local_best_solution)
 scores = cross_val_score(xgboost_classifier,x_train,y_train,cv=5,error_score='raise')
 print(scores)
 print(scores.mean(),scores.std())
-
