@@ -8,7 +8,6 @@ class LocalSearch:
     num_fn = 6
 
     # dictionary of HPs and their ranges
-    # list of HPs that are int; assumed rest of HPs are float
     def __init__ (self, ranges: dict) -> None:
         self.hp_ranges = ranges
         # for when we need to know whether to generate a random int vs float
