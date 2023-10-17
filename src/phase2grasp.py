@@ -2,14 +2,19 @@ import random
 
 class LocalSearch:
 
+    # for functions that tweak: this number is the +/-% for how much the tweaked parameter is changed (/2)
     margin = .3
+    # number of variations of generate neighbor
     num_fn = 6
 
     # dictionary of HPs and their ranges
     # list of HPs that are int; assumed rest of HPs are float
-    def __init__ (self, ranges: dict, ints: list) -> None:
+    def __init__ (self, ranges: dict) -> None:
         self.hp_ranges = ranges
-        self.int_hps = ints
+        # for when we need to know whether to generate a random int vs float
+        self.int_hps = []
+        for k, v in ranges.items():
+            if type(v[0]) == int: self.int_hps.append(k)
         self.function = 0
 
 
@@ -23,16 +28,19 @@ class LocalSearch:
         print('local search set to use fn {}'.format(self.function))
 
 
+    # two types of modifying:
+    # reinit: choose a new hp value within original range
+    # tweak: slightly modify current hp value based on self.margin
     def generate_neighbor (self, cur_solution: dict):
         if self.function == 0: return self.reinit_one_random(cur_solution=cur_solution)
         elif self.function == 1: return self.tweak_all(cur_solution=cur_solution)
         elif self.function == 2: return self.reinit_all_but_one(cur_solution=cur_solution)
         elif self.function == 3: return self.tweak_all_but_one(cur_solution=cur_solution)
-        elif self.function == 4: return self.random_selection(cur_solution=cur_solution)
+        elif self.function == 4: return self.random_reinit(cur_solution=cur_solution)
         elif self.function == 5: return self.random_tweaking(cur_solution=cur_solution)
 
     # fn 0
-    # from Gabriel's code: randomly choose one hyperparameter to reinitialize from entire range
+    # from Gabriel's code: randomly choose one hyperparameter to reinitialize from original range
     def reinit_one_random (self, cur_solution: dict):
 
         neighbor = cur_solution.copy()
@@ -46,7 +54,7 @@ class LocalSearch:
     
 
     # fn 1
-    # change all hp's of cur_solution, but only by self.margin
+    # change all hp's of cur_solution slightly (by self.margin)
     def tweak_all (self, cur_solution: dict):
 
         neighbor = cur_solution.copy()
@@ -62,7 +70,7 @@ class LocalSearch:
         
 
     # fn 2
-    # randomly choose 1 HP to remain: reinitialize the rest
+    # randomly choose 1 HP to remain the same: reinitialize the rest
     def reinit_all_but_one (self, cur_solution: dict):
 
         neighbor = cur_solution.copy()
@@ -79,7 +87,7 @@ class LocalSearch:
     
 
     # fn 3
-    # randomly choose 1 HP to remain: tweak the rest by self.margin
+    # randomly choose 1 HP to remain the same: tweak the rest by self.margin
     def tweak_all_but_one (self, cur_solution: dict):
 
         neighbor = cur_solution.copy()
@@ -99,7 +107,7 @@ class LocalSearch:
 
     # fn 4
     # select at random a list of HP to reinit
-    def random_selection (self, cur_solution: dict):
+    def random_reinit (self, cur_solution: dict):
 
         neighbor = cur_solution.copy()
         keys = list(neighbor.keys())
@@ -143,9 +151,10 @@ class LocalSearch:
 
 if __name__ == '__main__':
 
-    ls = LocalSearch({'n_estimators': (50, 500), 'max_depth': (3, 10), 'colsample_bytree': (0.5, 1), 'reg_lambda': (0.01, 1.0), 'subsample': (0.5, 1.0)}, ['n_estimators', 'max_depth'])
+    ls = LocalSearch({'n_estimators': (50, 500), 'max_depth': (3, 10), 'colsample_bytree': (0.5, 1), 'reg_lambda': (0.01, 1.0), 'subsample': (0.5, 1.0)})
 
     for _ in range(ls.num_fn):
+        # example HPs to test all configurations
         hp = {'n_estimators': 489, 'max_depth': 8, 'colsample_bytree': 0.6828694550198424, 'reg_lambda': 0.35305738774003786, 'subsample': 0.5648795831155732}
         print('Input: {}'.format(hp))
         print('Output: {}\n'.format(ls.generate_neighbor(hp)))

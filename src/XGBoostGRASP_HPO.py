@@ -95,7 +95,7 @@ def hill_climb(current_solution):
     return best_score, best_solution
 
 
-ls = LocalSearch(hyperparameter_ranges, ['n_estimators', 'max_depth'])
+ls = LocalSearch(hyperparameter_ranges)
 ls.set_fn(0)
 
 outer_counter = 1
