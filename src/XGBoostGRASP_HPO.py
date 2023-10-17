@@ -96,7 +96,7 @@ def hill_climb(current_solution):
 
 
 ls = LocalSearch(hyperparameter_ranges)
-ls.set_fn(0)
+ls.set_fn(5)
 
 outer_counter = 1
 print(str(outer_counter) + "---------")

@@ -4,7 +4,7 @@ class LocalSearch:
 
     # for functions that tweak: this number is the +/-% for how much the tweaked parameter is changed (/2)
     margin = .3
-    # number of variations of generate neighbor
+    # number of variations of generate_neighbor
     num_fn = 6
 
     # dictionary of HPs and their ranges
@@ -15,6 +15,60 @@ class LocalSearch:
         for k, v in ranges.items():
             if type(v[0]) == int: self.int_hps.append(k)
         self.function = 0
+
+
+
+
+    def hill_climb (self, cur: dict, evaluate_solution: function):
+
+        max_iterations = 100
+
+        best = cur
+        best_score = evaluate_solution(cur)
+
+        keys = list(cur.keys())
+        weights = {hp: [] for hp in keys}
+
+        search_iter = max_iterations * .37
+        select_iter = (max_iterations - search_iter) / len(keys)
+
+        for i in range(search_iter):
+            neighbor = cur.copy()
+            neighbor[keys[i % len(keys)]] = self.manual_reinit(keys[i % len(keys)])
+            neighbor_score = evaluate_solution(neighbor)
+            weights[keys[i % len(keys)]].append(neighbor_score)
+
+            if neighbor_score > best_score:
+                best = neighbor
+                best_score = neighbor_score
+            cur = neighbor
+        
+        for hp, scores in weights.items():
+            weights[hp] = max(scores) - min(scores)
+        
+        sorted(keys, weights.get, reverse=True)
+
+        for hp in keys():
+
+            for _ in range(select_iter):
+                neighbor = cur.copy()
+                neighbor[keys[i % len(keys)]] = self.manual_reinit(keys[i % len(keys)])
+                neighbor_score = evaluate_solution(neighbor)
+
+                if neighbor_score > best_score:
+                    best = neighbor
+                    best_score = neighbor_score
+                    cur = neighbor
+
+        return best_score, best
+
+
+    def manual_reinit (self, param: str):
+        if param in self.int_hps: return random.randint(self.hp_ranges[hp][1], self.hp_ranges[hp][0])
+        else: return random.uniform(self.hp_ranges[hp][1], self.hp_ranges[hp][0])
+
+
+
 
 
     def set_fn (self, fun: int):
@@ -31,16 +85,18 @@ class LocalSearch:
     # reinit: choose a new hp value within original range
     # tweak: slightly modify current hp value based on self.margin
     def generate_neighbor (self, cur_solution: dict):
-        if self.function == 0: return self.reinit_one_random(cur_solution=cur_solution)
+        if self.function == 0: return self.reinit_one(cur_solution=cur_solution)
         elif self.function == 1: return self.tweak_all(cur_solution=cur_solution)
         elif self.function == 2: return self.reinit_all_but_one(cur_solution=cur_solution)
         elif self.function == 3: return self.tweak_all_but_one(cur_solution=cur_solution)
         elif self.function == 4: return self.random_reinit(cur_solution=cur_solution)
         elif self.function == 5: return self.random_tweaking(cur_solution=cur_solution)
 
+    
+
     # fn 0
     # from Gabriel's code: randomly choose one hyperparameter to reinitialize from original range
-    def reinit_one_random (self, cur_solution: dict):
+    def reinit_one (self, cur_solution: dict):
 
         neighbor = cur_solution.copy()
         param = random.choice(list(neighbor.keys()))
@@ -111,7 +167,7 @@ class LocalSearch:
         neighbor = cur_solution.copy()
         keys = list(neighbor.keys())
         params = []
-        for _ in range(random.randint(1, len(keys))):
+        for _ in range(random.randint(1, len(keys) - 1)):
             hp = random.choice(keys)
             keys.remove(hp)
             params.append(hp)
