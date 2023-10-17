@@ -17,7 +17,7 @@ def prepare_dataset(dataset):
     return train_test_split(x, y, test_size=0.2,random_state=1)
 
 
-x_train, x_test, y_train, y_test = prepare_dataset(load_digits())
+x_train, x_test, y_train, y_test = prepare_dataset(load_breast_cancer())
 
 
 def evaluate_solution(params):
@@ -34,6 +34,13 @@ hyperparameter_ranges = {
     'reg_lambda': (0.01, 1.0),
     'subsample': (0.5, 1.0)
 }
+hp_indexes = {
+        0:'n_estimators',
+        1:'max_depth',
+        2:'colsample_bytree',
+        3:'reg_lambda',
+        4:'subsample'
+}
 
 
 def get_random_hyperparameter_value(hyperparameter):
@@ -42,25 +49,67 @@ def get_random_hyperparameter_value(hyperparameter):
     else:
         return random.uniform(hyperparameter_ranges[hyperparameter][0], hyperparameter_ranges[hyperparameter][1])
 
+def grid_search():
+    grid_split_size = 3
+    hp_val_list = grid_search_recur(0,grid_split_size,None)[1]
+    in_dict = {}
+    for i in range(len(hp_val_list)):
+        if i<2:#hardcoded
+            in_dict[hp_indexes[i]]=int(hp_val_list[i])
+        else:
+            in_dict[hp_indexes[i]]=hp_val_list[i]
+    return in_dict
+    
+def grid_search_recur(hp_index,split_size,hp_val_list):
+    if hp_val_list is None:
+        hp_val_list = []
+    #print(hp_index,hp_val_list, type(hp_val_list))
+    if hp_index>=len(hyperparameter_ranges):
+        in_dict = {}
+        for i in range(len(hp_val_list)):
+            if i<2:#hardcoded
+                in_dict[hp_indexes[i]]=int(hp_val_list[i])
+            else:
+                in_dict[hp_indexes[i]]=hp_val_list[i]
+        return (evaluate_solution(in_dict),hp_val_list)
+    
+    min_val = hyperparameter_ranges[hp_indexes[hp_index]][0]
+    max_val = hyperparameter_ranges[hp_indexes[hp_index]][1]
+    delta_val = (max_val-min_val)/(split_size-1)
+    
+    best_eval=0.0
+    best_eval_hps = []
+    for i in range(split_size):
+        temp = hp_val_list.copy()
+        temp.append(i*(delta_val)+min_val)
+        ret_val, ret_hp_val_list = grid_search_recur(hp_index+1,split_size,temp)
+        if ret_val>best_eval:
+            best_eval=ret_val
+            best_eval_hps=ret_hp_val_list
+    return (best_eval,best_eval_hps)
+
+
 
 def building_phase():
-    global x_train, x_test
-    number_of_iterations = 20
+    global x_train, x_test, y_train, y_test
+    number_of_iterations = 1
     best_intermediate_combinations = PriorityQueue()
-    intermediate_results_size = 3
+    intermediate_results_size = 1
     for i in range(0, number_of_iterations):
-
+        x_train, x_test, y_train, y_test = prepare_dataset(load_digits())
         scaler = StandardScaler()
         x_train = scaler.fit_transform(x_train)
         x_test = scaler.transform(x_test)
+#
+#        selected_hyperparameters = {
+#            'n_estimators': get_random_hyperparameter_value('n_estimators'),
+#            'max_depth': get_random_hyperparameter_value('max_depth'),
+#            'colsample_bytree': get_random_hyperparameter_value('colsample_bytree'),
+#            'reg_lambda': get_random_hyperparameter_value('reg_lambda'),
+#            'subsample': get_random_hyperparameter_value('subsample')
+#        }
 
-        selected_hyperparameters = {
-            'n_estimators': get_random_hyperparameter_value('n_estimators'),
-            'max_depth': get_random_hyperparameter_value('max_depth'),
-            'colsample_bytree': get_random_hyperparameter_value('colsample_bytree'),
-            'reg_lambda': get_random_hyperparameter_value('reg_lambda'),
-            'subsample': get_random_hyperparameter_value('subsample')
-        }
+        selected_hyperparameters = grid_search()
 
         print(selected_hyperparameters)
 
@@ -70,7 +119,7 @@ def building_phase():
         if best_intermediate_combinations.qsize() > intermediate_results_size:
             best_intermediate_combinations.get()
         print(f1_score)
-
+    print("build finished")
     return best_intermediate_combinations
 
 
@@ -91,7 +140,7 @@ def hill_climb(current_solution):
             best_solution = neighbor_solution
             best_score = neighbor_score
         current_solution = neighbor_solution
-
+    print("hill climb finished")
     return best_score, best_solution
 
 
