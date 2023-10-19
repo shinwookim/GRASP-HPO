@@ -9,17 +9,18 @@ from sklearn.metrics import f1_score
 from queue import PriorityQueue
 import random
 from phase2grasp import LocalSearch
+import time
 
 
 def prepare_dataset(dataset):
     x = dataset.data
     y = dataset.target
-    return train_test_split(x, y, test_size=0.2,random_state=1)
+    return train_test_split(x, y, test_size=0.2)
 
 
 x_train, x_test, y_train, y_test = prepare_dataset(load_breast_cancer())
 
-
+start_time = time.time()
 def evaluate_solution(params):
     xgboost_classifier = XGBClassifier(**params)
     xgboost_classifier.fit(x_train, y_train)
@@ -96,18 +97,18 @@ def building_phase():
     best_intermediate_combinations = PriorityQueue()
     intermediate_results_size = 1
     for i in range(0, number_of_iterations):
-        x_train, x_test, y_train, y_test = prepare_dataset(load_digits())
+        x_train, x_test, y_train, y_test = prepare_dataset(load_breast_cancer())
         scaler = StandardScaler()
         x_train = scaler.fit_transform(x_train)
         x_test = scaler.transform(x_test)
-#
-#        selected_hyperparameters = {
-#            'n_estimators': get_random_hyperparameter_value('n_estimators'),
-#            'max_depth': get_random_hyperparameter_value('max_depth'),
-#            'colsample_bytree': get_random_hyperparameter_value('colsample_bytree'),
-#            'reg_lambda': get_random_hyperparameter_value('reg_lambda'),
-#            'subsample': get_random_hyperparameter_value('subsample')
-#        }
+
+        selected_hyperparameters = {
+            'n_estimators': get_random_hyperparameter_value('n_estimators'),
+            'max_depth': get_random_hyperparameter_value('max_depth'),
+            'colsample_bytree': get_random_hyperparameter_value('colsample_bytree'),
+            'reg_lambda': get_random_hyperparameter_value('reg_lambda'),
+            'subsample': get_random_hyperparameter_value('subsample')
+        }
 
         selected_hyperparameters = grid_search()
 
@@ -124,7 +125,7 @@ def building_phase():
 
 
 best_intermediate_combinations = building_phase()
-
+end_build_time = time.time()
 
 def hill_climb(current_solution):
     max_iterations = 100
@@ -160,10 +161,11 @@ while not best_intermediate_combinations.empty():
         local_best_score = temporary_score
         local_best_solution = temporary_solution
 
-
+end_time = time.time()
 print("Hyperparameters: " + str(local_best_solution))
 print("Achieved best score: " + str(local_best_score))
 xgboost_classifier = XGBClassifier(**local_best_solution)
 scores = cross_val_score(xgboost_classifier,x_train,y_train,cv=5,error_score='raise')
 print(scores)
 print(scores.mean(),scores.std())
+print(str(end_build_time-start_time),str(end_time-end_build_time),str(end_time-end_build_time))

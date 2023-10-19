@@ -19,7 +19,7 @@ class LocalSearch:
 
 
 
-    def hill_climb (self, cur: dict, evaluate_solution: function):
+    def hill_climb (self, cur: dict, evaluate_solution):
 
         max_iterations = 100
 
