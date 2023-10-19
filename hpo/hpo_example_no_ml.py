@@ -58,7 +58,7 @@ def easy_objective(config_in):
         # Iterative training function - can be any arbitrary training procedure
         intermediate_score = evaluation_fn(step, width, height, mult)
         # Feed the score back back to Tune.
-        train.report({"iterations": step, "mean_loss": intermediate_score})
+        train.report({"iterations": step, "log_loss": intermediate_score})
         time.sleep(0.1)
 
 
@@ -77,13 +77,13 @@ config_space = {
 
 
 def run_hyperopt_tune(config_dict=config_space, smoke_test=False):
-    algo = HyperOptSearch(space=config_dict, metric="mean_loss", mode="min")
+    algo = HyperOptSearch(space=config_dict, metric="log_loss", mode="min")
     algo = ConcurrencyLimiter(algo, max_concurrent=4)
     scheduler = AsyncHyperBandScheduler()
     tuner = tune.Tuner(
         easy_objective,
         tune_config=tune.TuneConfig(
-            metric="mean_loss",
+            metric="log_loss",
             mode="min",
             search_alg=algo,
             scheduler=scheduler,
