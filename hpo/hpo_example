@@ -38,9 +38,9 @@ def get_best_model_checkpoint(results):
 
     with best_result.checkpoint.as_directory() as best_checkpoint_dir:
         best_bst.load_model(os.path.join(best_checkpoint_dir, "model.xgb"))
-    accuracy = 1.0 - best_result.metrics["eval-error"]
+    # accuracy = 1.0 - best_result.metrics["eval-error"]
     print(f"Best model parameters: {best_result.config}")
-    print(f"Best model total accuracy: {accuracy:.4f}")
+    # print(f"Best model total accuracy: {accuracy:.4f}")
     return best_bst
 
 
@@ -48,18 +48,18 @@ def tune_xgboost(smoke_test=False):
     search_space = {
         # You can mix constants with search space objects.
         "objective": "binary:logistic",
-        "eval_metric": ["logloss", "error"],
-        "max_depth": tune.randint(1, 9),
-        "min_child_weight": tune.choice([1, 2, 3]),
-        "subsample": tune.uniform(0.5, 1.0),
-        "eta": tune.loguniform(1e-4, 1e-1),
+        "eval_metric": "logloss",
+        "max_depth": hp.randint("max_depth", 1, 9),
+        "min_child_weight": hp.choice("min_child_weight", [1, 2, 3]),
+        "subsample": hp.uniform("subsample", 0.5, 1.0),
+        "eta": hp.loguniform("eta", 1e-4, 1e-1),
     }
     # This will enable aggressive early stopping of bad trials.
     scheduler = ASHAScheduler(
         max_t=10, grace_period=1, reduction_factor=2  # 10 training iterations
     )
 
-    algo = HyperOptSearch(metric="eval-logloss", mode="min")
+    algo = HyperOptSearch(space=search_space, metric="eval-logloss", mode="min")
     algo = ConcurrencyLimiter(algo, max_concurrent=4)
 
     tuner = tune.Tuner(
@@ -71,7 +71,6 @@ def tune_xgboost(smoke_test=False):
             search_alg=algo,
             num_samples=1 if smoke_test else 10,
         ),
-        param_space=search_space,
     )
     results = tuner.fit()
 
