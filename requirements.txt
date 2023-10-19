@@ -41,7 +41,6 @@ pyarrow==6.0.1
 Pygments==2.16.1
 python-dateutil==2.8.2
 pytz==2023.3.post1
-pywin32==306
 PyYAML==6.0.1
 pyzmq==25.1.1
 ray==2.7.0
