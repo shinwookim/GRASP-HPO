@@ -1,4 +1,5 @@
 import uuid
+import sys
 
 from sklearn.datasets import load_breast_cancer, load_digits
 from sklearn.model_selection import cross_val_score
@@ -100,36 +101,39 @@ def building_phase():
         scaler = StandardScaler()
         x_train = scaler.fit_transform(x_train)
         x_test = scaler.transform(x_test)
-#
-#        selected_hyperparameters = {
-#            'n_estimators': get_random_hyperparameter_value('n_estimators'),
-#            'max_depth': get_random_hyperparameter_value('max_depth'),
-#            'colsample_bytree': get_random_hyperparameter_value('colsample_bytree'),
-#            'reg_lambda': get_random_hyperparameter_value('reg_lambda'),
-#            'subsample': get_random_hyperparameter_value('subsample')
-#        }
+
+        #selected_hyperparameters = {
+        #    'n_estimators': get_random_hyperparameter_value('n_estimators'),
+        #    'max_depth': get_random_hyperparameter_value('max_depth'),
+        #    'colsample_bytree': get_random_hyperparameter_value('colsample_bytree'),
+        #    'reg_lambda': get_random_hyperparameter_value('reg_lambda'),
+        #    'subsample': get_random_hyperparameter_value('subsample')
+        #}
 
         selected_hyperparameters = grid_search()
 
-        print(selected_hyperparameters)
+        #print(selected_hyperparameters)
 
         f1_score = evaluate_solution(selected_hyperparameters)
 
         best_intermediate_combinations.put((f1_score, uuid.uuid4(), selected_hyperparameters))
         if best_intermediate_combinations.qsize() > intermediate_results_size:
             best_intermediate_combinations.get()
-        print(f1_score)
+        #print(f1_score)
     print("build finished")
     return best_intermediate_combinations
 
 
 best_intermediate_combinations = building_phase()
+#best_intermediate_combinations = PriorityQueue()
+#best_intermediate_combinations.put((0.986120392657593, 0, {'n_estimators': 92, 'max_depth': 7, 'colsample_bytree': 0.9526126601448102, 'reg_lambda': 0.15580676017683168, 'subsample': 0.569434823183105}))
 
 
 def hill_climb(current_solution):
     max_iterations = 100
     best_solution = current_solution
     best_score = evaluate_solution(current_solution)
+    print('from build phase: {}'.format(best_score))
 
     for _ in range(max_iterations):
 
@@ -139,18 +143,31 @@ def hill_climb(current_solution):
         if neighbor_score > best_score:
             best_solution = neighbor_solution
             best_score = neighbor_score
+            print('improved by gen_neighbor: {}'.format(best_score))
         current_solution = neighbor_solution
     print("hill climb finished")
     return best_score, best_solution
 
 
 ls = LocalSearch(hyperparameter_ranges)
-ls.set_fn(5)
+try:
+    ls.set_fn(int(sys.argv[1]))
+except:
+    ls.set_fn(0)
+
+
+cur_sol = best_intermediate_combinations.get()
+xgboost_classifier = XGBClassifier(**cur_sol[2])
+scores = cross_val_score(xgboost_classifier,x_train,y_train,cv=5,error_score='raise')
+print(scores)
+print(scores.mean(),scores.std())
+print()
+
+local_best_score, local_best_solution = hill_climb(cur_sol[2])
 
 outer_counter = 1
 print(str(outer_counter) + "---------")
 print()
-local_best_score, local_best_solution = hill_climb(best_intermediate_combinations.get()[2])
 while not best_intermediate_combinations.empty():
     outer_counter = outer_counter + 1
     print(str(outer_counter) + "---------")

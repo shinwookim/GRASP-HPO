@@ -5,7 +5,7 @@ class LocalSearch:
     # for functions that tweak: this number is the +/-% for how much the tweaked parameter is changed (/2)
     margin = .3
     # number of variations of generate_neighbor
-    num_fn = 6
+    num_fn = 4
 
     # dictionary of HPs and their ranges
     def __init__ (self, ranges: dict) -> None:
@@ -18,8 +18,7 @@ class LocalSearch:
 
 
 
-
-    def hill_climb (self, cur: dict, evaluate_solution: function):
+    def hill_climb (self, cur: dict, evaluate_solution):
 
         max_iterations = 100
 
@@ -69,16 +68,20 @@ class LocalSearch:
 
 
 
-
-
     def set_fn (self, fun: int):
         self.function = fun % self.num_fn
-        print('local search set to use fn {}'.format(fun))
+        print('local search set to use fn {}: {}'.format(fun, self.repr_fn()))
 
 
     def cycle_fn (self):
         self.function = (self.function + 1) % self.num_fn
-        print('local search set to use fn {}'.format(self.function))
+        print('local search set to use fn {}: {}'.format(self.function, self.repr_fn()))
+
+    def repr_fn (self) -> str:
+        if self.function == 0: return 'reinitialize one random HP'
+        elif self.function == 1: return 'tweak all HPs'
+        elif self.function == 2: return 'reinitialize random set of HP'
+        elif self.function == 3: return 'tweak random set of HP'
 
 
     # two types of modifying:
@@ -87,11 +90,8 @@ class LocalSearch:
     def generate_neighbor (self, cur_solution: dict):
         if self.function == 0: return self.reinit_one(cur_solution=cur_solution)
         elif self.function == 1: return self.tweak_all(cur_solution=cur_solution)
-        elif self.function == 2: return self.reinit_all_but_one(cur_solution=cur_solution)
-        elif self.function == 3: return self.tweak_all_but_one(cur_solution=cur_solution)
-        elif self.function == 4: return self.random_reinit(cur_solution=cur_solution)
-        elif self.function == 5: return self.random_tweaking(cur_solution=cur_solution)
-
+        elif self.function == 2: return self.random_reinit(cur_solution=cur_solution)
+        else: return self.random_tweaking(cur_solution=cur_solution)
     
 
     # fn 0
@@ -122,45 +122,9 @@ class LocalSearch:
             else: neighbor[hp] = random.uniform(param_range[0], param_range[1])
 
         return neighbor
-        
+    
 
     # fn 2
-    # randomly choose 1 HP to remain the same: reinitialize the rest
-    def reinit_all_but_one (self, cur_solution: dict):
-
-        neighbor = cur_solution.copy()
-        keys = list(neighbor.keys())
-        keys.remove(random.choice(keys))
-
-        for hp in keys:
-            param_range = (self.hp_ranges[hp][0], self.hp_ranges[hp][1])
-
-            if hp in self.int_hps: neighbor[hp] = random.randint(param_range[0], param_range[1])
-            else: neighbor[hp] = random.uniform(param_range[0], param_range[1])
-
-        return neighbor
-    
-
-    # fn 3
-    # randomly choose 1 HP to remain the same: tweak the rest by self.margin
-    def tweak_all_but_one (self, cur_solution: dict):
-
-        neighbor = cur_solution.copy()
-        keys = list(neighbor.keys())
-        keys.remove(random.choice(keys))
-
-        for hp in keys:
-            plus_minus = (self.hp_ranges[hp][1] - self.hp_ranges[hp][0]) * (self.margin / 2.0)
-            param_range = (max((neighbor[hp] - plus_minus), self.hp_ranges[hp][0]), \
-                               min((neighbor[hp] + plus_minus), self.hp_ranges[hp][1]))
-            
-            if hp in self.int_hps: neighbor[hp] = random.randint(int(param_range[0]), int(param_range[1]))
-            else: neighbor[hp] = random.uniform(param_range[0], param_range[1])
-
-        return neighbor
-    
-
-    # fn 4
     # select at random a list of HP to reinit
     def random_reinit (self, cur_solution: dict):
 
@@ -180,7 +144,7 @@ class LocalSearch:
 
         return neighbor
     
-    # fn 5
+    # fn 3
     # select at random a list of HP to tweak
     def random_tweaking (self, cur_solution: dict):
 
