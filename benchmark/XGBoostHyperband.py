@@ -1,89 +1,88 @@
-# Adapted from https://docs.ray.io/en/latest/tune/examples/tune-xgboost.html
+import xgboost as xgb
+import ray
+from ray import tune
+from ray.tune.schedulers import ASHAScheduler
 import sklearn.datasets
 import sklearn.metrics
-import os
-from ray.tune.schedulers import ASHAScheduler
-from sklearn.model_selection import train_test_split
-import xgboost as xgb
-
-from ray import train, tune
 from ray.tune.integration.xgboost import TuneReportCheckpointCallback
 
 
-def train_breast_cancer(config: dict):
-    # This is a simple training function to be passed into Tune
-    # Load dataset
+# Define your XGBoost training function
+def train_xgboost(config):
     data, labels = sklearn.datasets.load_breast_cancer(return_X_y=True)
-    # Split into train and test set
-    train_x, test_x, train_y, test_y = train_test_split(data, labels, test_size=0.25)
-    # Build input matrices for XGBoost
-    train_set = xgb.DMatrix(train_x, label=train_y)
-    test_set = xgb.DMatrix(test_x, label=test_y)
-    # Train the classifier, using the Tune callback
-    xgb.train(
-        config,
-        train_set,
-        evals=[(test_set, "eval")],
+    dtrain = xgb.DMatrix(data, label=labels)
+
+    params = {
+        "objective": "binary:logistic",
+        "eval_metric": "logloss",
+        "max_depth": config["max_depth"],
+        "min_child_weight": config["min_child_weight"],
+        "subsample": config["subsample"],
+        "colsample_bytree": config["colsample_bytree"],
+        "eta": config["learning_rate"],
+        "gamma": config["gamma"],
+        "n_estimators": config["n_estimators"],
+        "seed": 42,
+    }
+
+    # Train XGBoost model
+    evals = [(dtrain, "train")]
+    bst = xgb.train(
+        params,
+        dtrain,
+        config["num_boost_round"],
+        evals=evals,
         verbose_eval=False,
         callbacks=[TuneReportCheckpointCallback(filename="model.xgb")],
     )
 
+    # Predict
+    preds = bst.predict(dtrain)
+    threshold = 0.5  # You can adjust this threshold as needed
+    binary_preds = [1 if p > threshold else 0 for p in preds]
 
-def get_best_model_checkpoint(results):
-    best_bst = xgb.Booster()
-    best_result = results.get_best_result()
+    # Calculate F1 score
+    f1 = sklearn.metrics.f1_score(labels, binary_preds)
 
-    with best_result.checkpoint.as_directory() as best_checkpoint_dir:
-        best_bst.load_model(os.path.join(best_checkpoint_dir, "model.xgb"))
-    accuracy = 1.0 - best_result.metrics["eval-error"]
-    print(f"Best model parameters: {best_result.config}")
-    print(f"Best model total accuracy: {accuracy:.4f}")
-    return best_bst
-
-
-def tune_xgboost(smoke_test=False):
-    search_space = {
-        # You can mix constants with search space objects.
-        "objective": "binary:logistic",
-        "eval_metric": ["logloss", "error"],
-        "max_depth": tune.randint(1, 9),
-        "min_child_weight": tune.choice([1, 2, 3]),
-        "subsample": tune.uniform(0.5, 1.0),
-        "eta": tune.loguniform(1e-4, 1e-1),
-    }
-    # This will enable aggressive early stopping of bad trials.
-    scheduler = ASHAScheduler(
-        max_t=10, grace_period=1, reduction_factor=2  # 10 training iterations
-    )
-
-    tuner = tune.Tuner(
-        train_breast_cancer,
-        tune_config=tune.TuneConfig(
-            metric="eval-logloss",
-            mode="min",
-            scheduler=scheduler,
-            num_samples=1 if smoke_test else 10,
-        ),
-        param_space=search_space,
-    )
-    results = tuner.fit()
-
-    return results
+    return {"f1_score": f1}
 
 
 if __name__ == "__main__":
-    import argparse
+    ray.init(local_mode=False)  # Initialize Ray (or specify your cluster configuration)
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--smoke-test", action="store_true", help="Finish quickly for testing"
+    # Define the hyperparameter search space
+    config = {
+        "max_depth": tune.randint(3, 10),
+        "min_child_weight": tune.uniform(1, 10),
+        "subsample": tune.uniform(0.5, 1.0),
+        "colsample_bytree": tune.uniform(0.5, 1.0),
+        "learning_rate": tune.loguniform(1e-3, 0.1),
+        "gamma": tune.uniform(0, 1),
+        "n_estimators": tune.choice([100, 200, 300]),
+        "num_boost_round": tune.choice([10, 50, 100]),
+    }
+
+    # Define the ASHA scheduler for hyperparameter optimization
+    scheduler = ASHAScheduler(
+        max_t=100,  # Maximum number of training iterations
+        grace_period=10,  # Minimum number of iterations for each trial
+        reduction_factor=2,  # Factor by which trials are pruned
     )
-    args, _ = parser.parse_known_args()
 
-    results = tune_xgboost(smoke_test=args.smoke_test)
+    # Run the hyperparameter search
+    analysis = tune.run(
+        train_xgboost,
+        config=config,
+        num_samples=10,  # Number of trials to run
+        metric="f1_score",  # Metric to optimize
+        mode="max",  # Maximize the F1 score
+        scheduler=scheduler,
+    )
 
-    # Load the best model checkpoint.
-    best_bst = get_best_model_checkpoint(results)
-
-    # You could now do further predictions with
-    # best_bst.predict(...)
+    # Get the best configuration
+    best_trial = analysis.get_best_trial(metric="f1_score", mode="max")
+    best_f1 = best_trial.last_result["f1_score"]
+    print("Best hyperparameters:", best_trial.config)
+    print(f"Best model total accuracy: {best_f1}")
+    # Close Ray
+    ray.shutdown()
