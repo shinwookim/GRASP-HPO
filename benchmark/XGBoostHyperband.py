@@ -1,15 +1,16 @@
+import sklearn.datasets
+from sklearn.metrics import f1_score
 import xgboost as xgb
 import ray
 from ray import tune
 from ray.tune.schedulers import ASHAScheduler
-import sklearn.datasets
-import sklearn.metrics
-from ray.tune.integration.xgboost import TuneReportCheckpointCallback
 
 
 # Define your XGBoost training function
 def train_xgboost(config):
-    data, labels = sklearn.datasets.load_breast_cancer(return_X_y=True)
+    data, labels = sklearn.datasets.load_breast_cancer(
+        return_X_y=True
+    )  # Load your dataset here
     dtrain = xgb.DMatrix(data, label=labels)
 
     params = {
@@ -28,12 +29,7 @@ def train_xgboost(config):
     # Train XGBoost model
     evals = [(dtrain, "train")]
     bst = xgb.train(
-        params,
-        dtrain,
-        config["num_boost_round"],
-        evals=evals,
-        verbose_eval=False,
-        callbacks=[TuneReportCheckpointCallback(filename="model.xgb")],
+        params, dtrain, config["num_boost_round"], evals=evals, verbose_eval=False
     )
 
     # Predict
@@ -42,7 +38,7 @@ def train_xgboost(config):
     binary_preds = [1 if p > threshold else 0 for p in preds]
 
     # Calculate F1 score
-    f1 = sklearn.metrics.f1_score(labels, binary_preds)
+    f1 = f1_score(labels, binary_preds)
 
     return {"f1_score": f1}
 
@@ -81,8 +77,10 @@ if __name__ == "__main__":
 
     # Get the best configuration
     best_trial = analysis.get_best_trial(metric="f1_score", mode="max")
-    best_f1 = best_trial.last_result["f1_score"]
+    best_f1_score = best_trial.last_result["f1_score"]
+
     print("Best hyperparameters:", best_trial.config)
-    print(f"Best model total accuracy: {best_f1}")
+    print("Best F1 score:", best_f1_score)
+
     # Close Ray
     ray.shutdown()
