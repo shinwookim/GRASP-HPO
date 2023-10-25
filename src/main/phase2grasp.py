@@ -1,4 +1,5 @@
 import random
+from queue import PriorityQueue
 
 class LocalSearch:
 
@@ -6,60 +7,54 @@ class LocalSearch:
     margin = .3
     # number of variations of generate_neighbor
     num_fn = 4
+    # max iterations for hill climb phase
+    max_iter = 100
 
     # dictionary of HPs and their ranges
-    def __init__ (self, ranges: dict) -> None:
+    def __init__ (self, ranges: dict, evaluate) -> None:
         self.hp_ranges = ranges
         # for when we need to know whether to generate a random int vs float
         self.int_hps = []
         for k, v in ranges.items():
             if type(v[0]) == int: self.int_hps.append(k)
+        self.evaluate = evaluate
         self.function = 0
 
 
+    def local_search (self, intermed_best_sols: PriorityQueue):
 
-    def hill_climb (self, cur: dict, evaluate_solution):
+        local_best_score, local_best_sol = self.hill_climb(intermed_best_sols.get()[2])
 
-        max_iterations = 100
+        outer_counter = 1
+        while not intermed_best_sols.empty():
+            outer_counter += 1
 
-        best = cur
-        best_score = evaluate_solution(cur)
+            temp_score, temp_sol = self.hill_climb(intermed_best_sols.get()[2])
+            if local_best_score < temp_score:
+                local_best_score = temp_score
+                local_best_sol = temp_sol
 
-        keys = list(cur.keys())
-        weights = {hp: [] for hp in keys}
+        return local_best_score, local_best_sol
 
-        search_iter = max_iterations * .37
-        select_iter = (max_iterations - search_iter) / len(keys)
 
-        for i in range(search_iter):
-            neighbor = cur.copy()
-            neighbor[keys[i % len(keys)]] = self.manual_reinit(keys[i % len(keys)])
-            neighbor_score = evaluate_solution(neighbor)
-            weights[keys[i % len(keys)]].append(neighbor_score)
+
+    def hill_climb (self, cur_sol: dict):
+
+        best_sol = cur_sol
+        best_score = self.evaluate(cur_sol)
+
+        for _ in range(self.max_iter):
+
+            neighbor_sol = self.generate_neighbor(cur_sol)
+            neighbor_score = self.evaluate(neighbor_sol)
 
             if neighbor_score > best_score:
-                best = neighbor
+                best_sol = neighbor_sol
                 best_score = neighbor_score
-            cur = neighbor
-        
-        for hp, scores in weights.items():
-            weights[hp] = max(scores) - min(scores)
-        
-        sorted(keys, weights.get, reverse=True)
+            cur_sol = neighbor_sol
 
-        for hp in keys():
-
-            for _ in range(select_iter):
-                neighbor = cur.copy()
-                neighbor[keys[i % len(keys)]] = self.manual_reinit(keys[i % len(keys)])
-                neighbor_score = evaluate_solution(neighbor)
-
-                if neighbor_score > best_score:
-                    best = neighbor
-                    best_score = neighbor_score
-                    cur = neighbor
-
-        return best_score, best
+        return best_score, best_sol
+    
 
 
     def manual_reinit (self, param: str):

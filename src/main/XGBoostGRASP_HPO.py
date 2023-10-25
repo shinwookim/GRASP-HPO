@@ -111,7 +111,6 @@ def building_phase():
         #}
 
         selected_hyperparameters = grid_search()
-
         #print(selected_hyperparameters)
 
         f1_score = evaluate_solution(selected_hyperparameters)
@@ -124,63 +123,29 @@ def building_phase():
     return best_intermediate_combinations
 
 
-best_intermediate_combinations = building_phase()
-#best_intermediate_combinations = PriorityQueue()
-#best_intermediate_combinations.put((0.986120392657593, 0, {'n_estimators': 92, 'max_depth': 7, 'colsample_bytree': 0.9526126601448102, 'reg_lambda': 0.15580676017683168, 'subsample': 0.569434823183105}))
+#best_intermediate_combinations = building_phase()
+best_intermediate_combinations = PriorityQueue()
+best_intermediate_combinations.put((0.986120392657593, 0, {'n_estimators': 92, 'max_depth': 7, 'colsample_bytree': 0.9526126601448102, 'reg_lambda': 0.15580676017683168, 'subsample': 0.569434823183105}))
 
 
-def hill_climb(current_solution):
-    max_iterations = 100
-    best_solution = current_solution
-    best_score = evaluate_solution(current_solution)
-    print('from build phase: {}'.format(best_score))
 
-    for _ in range(max_iterations):
-
-        neighbor_solution = ls.generate_neighbor(current_solution)
-        neighbor_score = evaluate_solution(neighbor_solution)
-
-        if neighbor_score > best_score:
-            best_solution = neighbor_solution
-            best_score = neighbor_score
-            print('improved by gen_neighbor: {}'.format(best_score))
-        current_solution = neighbor_solution
-    print("hill climb finished")
-    return best_score, best_solution
-
-
-ls = LocalSearch(hyperparameter_ranges)
+ls = LocalSearch(hyperparameter_ranges, evaluate_solution)
 try:
     ls.set_fn(int(sys.argv[1]))
-except:
-    ls.set_fn(0)
+except: pass
 
-
-cur_sol = best_intermediate_combinations.get()
+debug = PriorityQueue()
+for combo in best_intermediate_combinations.queue: debug.put(combo)
+cur_sol = debug.get()
 xgboost_classifier = XGBClassifier(**cur_sol[2])
 scores = cross_val_score(xgboost_classifier,x_train,y_train,cv=5,error_score='raise')
-print(scores)
-print(scores.mean(),scores.std())
-print()
-
-local_best_score, local_best_solution = hill_climb(cur_sol[2])
-
-outer_counter = 1
-print(str(outer_counter) + "---------")
-print()
-while not best_intermediate_combinations.empty():
-    outer_counter = outer_counter + 1
-    print(str(outer_counter) + "---------")
-    print()
-    temporary_score, temporary_solution = hill_climb(best_intermediate_combinations.get()[2])
-    if local_best_score < temporary_score:
-        local_best_score = temporary_score
-        local_best_solution = temporary_solution
+print("FROM PHASE 1: mean: {}, std: {}".format(scores.mean(),scores.std()))
 
 
-print("Hyperparameters: " + str(local_best_solution))
-print("Achieved best score: " + str(local_best_score))
-xgboost_classifier = XGBClassifier(**local_best_solution)
+best_score, best_sol = ls.local_search(best_intermediate_combinations)
+
+
+xgboost_classifier = XGBClassifier(**best_sol)
 scores = cross_val_score(xgboost_classifier,x_train,y_train,cv=5,error_score='raise')
-print(scores)
-print(scores.mean(),scores.std())
+print("AFTER PHASE 2: mean: {}, std: {}".format(scores.mean(),scores.std()))
+print()

@@ -7,7 +7,7 @@
 for iter in 0 1 2 3
 do
 
-    python3 ../main/XGBoostGRASP_HPO.py $iter > out/test$iter.txt
+    python3 main/XGBoostGRASP_HPO.py $iter >> test/out/test.txt
     echo "Iteration $iter complete"
 
 done

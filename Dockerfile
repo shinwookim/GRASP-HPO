@@ -16,4 +16,8 @@ COPY src/test/test.sh test/
 RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install -r ../requirements.txt
 
-CMD ["python3", "main/XGBoostGRASP_HPO.py", "1"]
+CMD ["/bin/bash"]
+
+# docker build -t [owner/image-name:v] .
+# with image: docker run -it --rm --name grasp [owner/image-name:v]
+# run ./test/test.sh once in container
