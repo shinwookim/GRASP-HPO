@@ -52,9 +52,9 @@ if __name__ == "__main__":
         "min_child_weight": tune.uniform(1, 10),
         "subsample": tune.uniform(0.5, 1.0),
         "colsample_bytree": tune.uniform(0.5, 1.0),
-        "learning_rate": tune.loguniform(1e-3, 0.1),
+        "learning_rate": tune.loguniform(1e-3, 1.0),
         "gamma": tune.uniform(0, 1),
-        "n_estimators": tune.choice([100, 200, 300]),
+        "n_estimators": tune.choice([50, 500]),
         "num_boost_round": tune.choice([10, 50, 100]),
     }
 
