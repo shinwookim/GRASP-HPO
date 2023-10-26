@@ -29,8 +29,12 @@ def train_breast_cancer(config: dict):
         evals=[(test_set, "eval")],
         verbose_eval=False,
         callbacks=[TuneReportCheckpointCallback(filename="model.xgb")],
+        feval=f1_eval,
     )
 
+def f1_eval(preds, dtrain):
+    labels = dtrain.get_label()
+    return "f1_score", sklearn.metrics.f1_score(labels, preds > 0.5)
 
 def get_best_model_checkpoint(results):
     best_bst = xgb.Booster()
@@ -40,6 +44,8 @@ def get_best_model_checkpoint(results):
         best_bst.load_model(os.path.join(best_checkpoint_dir, "model.xgb"))
     # accuracy = 1.0 - best_result.metrics["eval-error"]
     print(f"Best model parameters: {best_result.config}")
+    # best f1_score
+    print(f"Best model f1_score: {best_result.metrics['eval-f1_score']:.4f}")
     # print(f"Best model total accuracy: {accuracy:.4f}")
     return best_bst
 
@@ -48,29 +54,34 @@ def tune_xgboost(smoke_test=False):
     search_space = {
         # You can mix constants with search space objects.
         "objective": "binary:logistic",
-        "eval_metric": "logloss",
-        "max_depth": hp.randint("max_depth", 1, 9),
-        "min_child_weight": hp.choice("min_child_weight", [1, 2, 3]),
+        "disable_default_eval_metric": 1,
+        "max_depth": hp.randint("max_depth", 3, 10),
+        "min_child_weight": hp.uniform("min_child_weight", 1, 10),
         "subsample": hp.uniform("subsample", 0.5, 1.0),
-        "eta": hp.loguniform("eta", 1e-4, 1e-1),
+        "colsample_bytree": hp.uniform("colsample_bytree", 0.5, 1.0),
+        "learning_rate": hp.loguniform("learning_rate", 1e-3, 1.0),
+        "gamma": hp.uniform("gamma", 0, 1),
+        "n_estimators": hp.choice("n_estimators", [50, 500]),
+        "num_boost_round": hp.choice("num_boost_round", [10, 50, 100]),
     }
     # This will enable aggressive early stopping of bad trials.
     scheduler = ASHAScheduler(
         max_t=10, grace_period=1, reduction_factor=2  # 10 training iterations
     )
 
-    algo = HyperOptSearch(space=search_space, metric="eval-logloss", mode="min")
-    algo = ConcurrencyLimiter(algo, max_concurrent=4)
+    algo = HyperOptSearch(space=search_space, metric="eval-f1_score", mode="max")
+    # algo = ConcurrencyLimiter(algo, max_concurrent=4)
 
     tuner = tune.Tuner(
         train_breast_cancer,
         tune_config=tune.TuneConfig(
-            metric="eval-logloss",
-            mode="min",
+            metric="eval-f1_score",
+            mode="max",
             scheduler=scheduler,
             search_alg=algo,
             num_samples=1 if smoke_test else 10,
         ),
+
     )
     results = tuner.fit()
 
