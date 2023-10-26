@@ -66,7 +66,7 @@ def tune_xgboost(smoke_test=False):
     }
     # This will enable aggressive early stopping of bad trials.
     scheduler = ASHAScheduler(
-        max_t=10, grace_period=1, reduction_factor=2  # 10 training iterations
+        max_t=100, grace_period=20, reduction_factor=2  # 10 training iterations
     )
 
     algo = HyperOptSearch(space=search_space, metric="eval-f1_score", mode="max")
@@ -79,7 +79,7 @@ def tune_xgboost(smoke_test=False):
             mode="max",
             scheduler=scheduler,
             search_alg=algo,
-            num_samples=1 if smoke_test else 10,
+            num_samples=10,
         ),
 
     )
