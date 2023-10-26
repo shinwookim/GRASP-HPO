@@ -10,13 +10,12 @@ COPY requirements.txt ../
 
 # tests and test output directory
 RUN mkdir test/
-RUN mkdir test/out/
 COPY src/test/test.sh test/
 
 RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install -r ../requirements.txt
 
-CMD ["/bin/bash"]
+CMD ["test/test.sh"]
 
 # docker build -t [owner/image-name:v] .
 # with image: docker run -it --rm --name grasp [owner/image-name:v]

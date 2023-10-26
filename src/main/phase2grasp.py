@@ -8,31 +8,37 @@ class LocalSearch:
     # number of variations of generate_neighbor
     num_fn = 4
     # max iterations for hill climb phase
-    max_iter = 100
+    max_iter = 50
 
     # dictionary of HPs and their ranges
-    def __init__ (self, ranges: dict, evaluate) -> None:
-        self.hp_ranges = ranges
-        # for when we need to know whether to generate a random int vs float
-        self.int_hps = []
-        for k, v in ranges.items():
-            if type(v[0]) == int: self.int_hps.append(k)
+    def __init__ (self, evaluate) -> None:
         self.evaluate = evaluate
         self.function = 0
 
 
-    def local_search (self, intermed_best_sols: PriorityQueue):
+    def local_search (self, intermed_best_sols: PriorityQueue, ranges: dict, verbose=False):
+        self.hp_ranges = ranges
+        self.int_hps = []
+        # for when we need to know whether to generate a random int vs float
+        for k, v in ranges.items():
+            if type(v[0]) == int: self.int_hps.append(k)
 
-        local_best_score, local_best_sol = self.hill_climb(intermed_best_sols.get()[2])
+        iter = 1
+        local_best_score, local_best_sol = 0, {}
 
-        outer_counter = 1
         while not intermed_best_sols.empty():
-            outer_counter += 1
+        
+            cur = intermed_best_sols.get()
 
-            temp_score, temp_sol = self.hill_climb(intermed_best_sols.get()[2])
-            if local_best_score < temp_score:
-                local_best_score = temp_score
-                local_best_sol = temp_sol
+            if verbose: print('LS iteration {}: \nBest solution after phase 1: {}\nCorresponding score: {}'.format(iter, cur[2], cur[0]))
+            tmp_score, tmp_sol = self.hill_climb(cur[2])
+            if verbose: print('LS iteration {}: \nBest solution after phase 2: {}\nCorresponding score: {}\n'.format(iter, tmp_sol, tmp_score))
+
+            if tmp_score > local_best_score:
+                local_best_score = tmp_score
+                local_best_sol = tmp_sol
+                if verbose: print('After LS iteration {}: LS found neighbor solution w/ higher k-fold mean than phase 1'.format(iter, local_best_sol, local_best_score))
+            iter += 1
 
         return local_best_score, local_best_sol
 
