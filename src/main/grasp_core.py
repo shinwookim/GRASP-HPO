@@ -10,14 +10,17 @@ class GRASP_HPO:
         self.phase2 = LocalSearch(evaluate)
         self.hp_ranges = None
 
+
+    def set_margin (self, num):
+        self.phase2.set_margin(num)
+
+    def set_iter (self, num):
+        self.phase2.set_iter(num)
+
+
+
     def configure_ranges (self, ranges):
         self.hp_ranges = ranges
-
-    def set_gen_n (self, num):
-        self.phase2.set_fn(num)
-
-    def cycle_gen_n (self):
-        self.phase2.cycle_fn()
 
 
     def optimize (self) -> dict:

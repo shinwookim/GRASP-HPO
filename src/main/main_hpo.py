@@ -27,6 +27,12 @@ class HPO_SIM:
     
     def evaluate_solution(self, params) -> float:
         xgboost_classifier = XGBClassifier(**params)
+
+        # f1_score
+        xgboost_classifier.fit(self.x_train, self.y_train)
+        y_pred = xgboost_classifier.predict(self.x_test)
+        return f1_score(self.y_test, y_pred, average='weighted')
+        # k fold below, comment out 3 lines up
         scoring=make_scorer(f1_score,average='weighted')
         scores = cross_val_score(xgboost_classifier,self.x_train,self.y_train,cv=5,error_score='raise',scoring=scoring)
         return scores.mean()
