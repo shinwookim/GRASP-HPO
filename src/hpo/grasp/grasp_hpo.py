@@ -11,7 +11,7 @@ from src.hpo.hpo_strategy import HPOStrategy
 
 
 LOCAL_SEARCH_ITERATIONS = 100
-BUILDING_PHASE_ITERATIONS = 500
+BUILDING_PHASE_ITERATIONS = 10
 
 
 class GraspHpo(HPOStrategy):

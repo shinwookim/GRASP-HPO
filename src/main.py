@@ -13,11 +13,11 @@ HYPERPARAMETER_RANGES = {
 if __name__ == "__main__":
     data, labels = load_breast_cancer(return_X_y=True)
 
-    # grasp_hpo = HPOFactory.create_hpo_strategy('GraspHpo')
-    # grasp_best_trial_config, grasp_best_trial_score = grasp_hpo.hyperparameter_optimization(data, labels, HYPERPARAMETER_RANGES)
-    # print('GRASP_HPO: ')
-    # print('configuration: ', grasp_best_trial_config)
-    # print('f1_score: ', grasp_best_trial_score)
+    grasp_hpo = HPOFactory.create_hpo_strategy('GraspHpo')
+    grasp_best_trial_config, grasp_best_trial_score = grasp_hpo.hyperparameter_optimization(data, labels, HYPERPARAMETER_RANGES)
+    print('GRASP_HPO: ')
+    print('configuration: ', grasp_best_trial_config)
+    print('f1_score: ', grasp_best_trial_score)
 
     print()
     logger = logging.getLogger('ray"')
