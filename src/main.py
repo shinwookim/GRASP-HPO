@@ -1,23 +1,30 @@
-from sklearn.datasets import load_digits
-from sklearn.model_selection import train_test_split, cross_val_score
-from xgboost import XGBClassifier
-
+from sklearn.datasets import load_breast_cancer
 from src.hpo.hpo_factory import HPOFactory
+import logging
 
-
-def prepare_dataset(dataset):
-    x = dataset.data
-    y = dataset.target
-    return train_test_split(x, y, test_size=0.2,random_state=1)
-
+HYPERPARAMETER_RANGES = {
+    'n_estimators': (50, 500),
+    'max_depth': (3, 10),
+    'colsample_bytree': (0.5, 1),
+    'reg_lambda': (0.01, 1.0),
+    'subsample': (0.5, 1.0)
+}
 
 if __name__ == "__main__":
-    x_train, x_test, y_train, y_test = prepare_dataset(load_digits())
-    hpo_strategy = HPOFactory.create_hpo_strategy('GraspHpo')
-    local_best_solution, local_best_score = hpo_strategy.hyperparameter_optimization(x_train, x_test, y_train, y_test)
-    print("Optimized hyperparameters: " + str(local_best_solution))
-    print("Achieved best score: " + str(local_best_score))
-    xgboost_classifier = XGBClassifier(**local_best_solution)
-    scores = cross_val_score(xgboost_classifier, x_train, y_train, cv=5, error_score='raise')
-    print("Cross validation scores: ", scores)
-    print("Scores' standard deviation: ", scores.mean(), "", scores.std())
+    data, labels = load_breast_cancer(return_X_y=True)
+
+    # grasp_hpo = HPOFactory.create_hpo_strategy('GraspHpo')
+    # grasp_best_trial_config, grasp_best_trial_score = grasp_hpo.hyperparameter_optimization(data, labels, HYPERPARAMETER_RANGES)
+    # print('GRASP_HPO: ')
+    # print('configuration: ', grasp_best_trial_config)
+    # print('f1_score: ', grasp_best_trial_score)
+
+    print()
+    logger = logging.getLogger('ray"')
+    logger.setLevel(logging.CRITICAL)
+    hyperband_hpo = HPOFactory.create_hpo_strategy('Hyperband')
+    hyperbanbd_best_trial_config, hyperbanbd_best_trial_score = hyperband_hpo.hyperparameter_optimization(data, labels, HYPERPARAMETER_RANGES)
+    logger.setLevel(logging.NOTSET)
+    print('Hyperband: ')
+    print('configuration: ', hyperbanbd_best_trial_config)
+    print('f1_score: ', hyperbanbd_best_trial_score)
