@@ -6,6 +6,7 @@ from ray import tune
 from ray.tune.schedulers import ASHAScheduler
 from ray.tune.integration.xgboost import TuneReportCheckpointCallback
 from src.hpo.hpo_strategy import HPOStrategy
+from ray.train import RunConfig
 
 
 class Hyperband(HPOStrategy):
@@ -60,6 +61,9 @@ class Hyperband(HPOStrategy):
             reduction_factor=2,  # Factor by which trials are pruned
         )
 
+        # Config to reduce verbosity
+        run_config = RunConfig(verbose=0)
+
         # Run the hyperparameter search
         tuner = tune.Tuner(
             train_xgboost,
@@ -67,6 +71,7 @@ class Hyperband(HPOStrategy):
                 mode="max", metric="f1_score", scheduler=scheduler, num_samples=10
             ),
             param_space=search_space,
+            run_config=run_config,
         )
         results = tuner.fit()
         best_param = results.get_best_result().config
