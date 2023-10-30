@@ -13,9 +13,12 @@ class Hyperband(HPOStrategy):
         def evaluate_f1_score(predt: np.ndarray, dtrain: xgboost.DMatrix) -> np.ndarray:
             """Compute the f1 score"""
             y = dtrain.get_label()
-            # threshold = 0.5  # You can adjust this threshold as needed
-            # binary_preds = [1 if p > threshold else 0 for p in predt]
-            f1 = sklearn.metrics.f1_score(y, predt, average="weighted")
+            if len(np.unique(y)) == 2:
+                threshold = 0.5
+                binary_preds = [1 if p > threshold else 0 for p in predt]
+                f1 = sklearn.metrics.f1_score(y, binary_preds, average="weighted")
+            else:
+                f1 = sklearn.metrics.f1_score(y, predt, average="weighted")
             return ("f1_score", f1)
 
         def train_xgboost(config: dict):
