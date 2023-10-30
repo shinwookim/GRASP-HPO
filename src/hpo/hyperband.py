@@ -13,19 +13,19 @@ class Hyperband(HPOStrategy):
         def evaluate_f1_score(predt: np.ndarray, dtrain: xgboost.DMatrix) -> np.ndarray:
             """Compute the f1 score"""
             y = dtrain.get_label()
-            threshold = 0.5  # You can adjust this threshold as needed
-            binary_preds = [1 if p > threshold else 0 for p in predt]
-            f1 = sklearn.metrics.f1_score(y, binary_preds)
+            # threshold = 0.5  # You can adjust this threshold as needed
+            # binary_preds = [1 if p > threshold else 0 for p in predt]
+            f1 = sklearn.metrics.f1_score(y, predt, average="weighted")
             return ("f1_score", f1)
 
         def train_xgboost(config: dict):
             train_set = xgboost.DMatrix(data=x_train, label=y_train)
             test_set = xgboost.DMatrix(data=x_test, label=y_test)
-
+            num_boost_round = config.pop("num_boost_round")
             xgboost.train(
                 config,
                 train_set,
-                config["num_boost_round"],
+                num_boost_round,
                 evals=[(test_set, "eval")],
                 verbose_eval=True,
                 custom_metric=evaluate_f1_score,
@@ -42,14 +42,18 @@ class Hyperband(HPOStrategy):
             "colsample_bytree": tune.uniform(0.5, 1.0),
             "learning_rate": tune.loguniform(1e-3, 1.0),
             "gamma": tune.uniform(0, 1),
-            "n_estimators": tune.choice([50, 500]),
             "num_boost_round": tune.choice([10, 50, 100]),
         }
+
+        # Change objective for multi-class
+        if len(np.unique(y_train)) > 2:
+            search_space["objective"] = "multi:softmax"
+            search_space["num_class"] = str(len(np.unique(y_train)))
 
         # Define the ASHA scheduler for hyperparameter optimization
         scheduler = ASHAScheduler(
             max_t=100,  # Maximum number of training iterations
-            grace_period=10,  # Minimum number of iterations for each trial
+            grace_period=20,  # Minimum number of iterations for each trial
             reduction_factor=2,  # Factor by which trials are pruned
         )
 
