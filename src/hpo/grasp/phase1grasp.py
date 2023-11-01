@@ -1,6 +1,6 @@
 import uuid
 import random
-
+from sklearn.preprocessing import StandardScaler
 from queue import PriorityQueue
 
 
@@ -20,10 +20,14 @@ class Construction:
 
 
     def building_phase(self, x_train, x_test, y_train, y_test, search_space):
-
+        # print('\nStarting building phase...')
         best_intermediate_combinations = PriorityQueue()
-        intermediate_results_size = 2
-        for _ in range(self.max_iter):
+        intermediate_results_size = 20
+        for i in range(self.max_iter):
+
+            scaler = StandardScaler()
+            x_train = scaler.fit_transform(x_train)
+            x_test = scaler.transform(x_test)
 
             selected_hyperparameters = {
                 'n_estimators': self.get_random_hyperparameter_value('n_estimators', search_space['n_estimators']),
@@ -39,4 +43,6 @@ class Construction:
             if best_intermediate_combinations.qsize() > intermediate_results_size:
                 best_intermediate_combinations.get()
 
+        # print('Finished building phase.')
+        #print()
         return best_intermediate_combinations

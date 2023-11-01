@@ -1,22 +1,29 @@
 FROM python:3.9.18-bookworm as build
-LABEL build_date="20/10/2023"
+LABEL build_date="2023/11/1"
 LABEL maintainer="Zane Kissel, et. al"
 
 WORKDIR /usr/app/src/
 
-RUN mkdir main/
-COPY src/main/*.py main/
 COPY requirements.txt ../
 
-# tests and test output directory
-RUN mkdir test/
-COPY src/test/test.sh test/
+COPY src/*.py .
+
+RUN mkdir hpo/
+COPY src/hpo/*.py hpo/
+
+RUN mkdir hpo/grasp/
+COPY src/hpo/grasp/*.py hpo/grasp/
+
+RUN mkdir hpo/benchmark/
+COPY src/hpo/benchmark/*.py hpo/benchmark/
+
 
 RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install -r ../requirements.txt
 
-CMD ["test/test.sh"]
+CMD ["python3", "-m", "src.main"]
 
 # docker build -t [owner/image-name:v] .
 # with image: docker run -it --rm --name grasp [owner/image-name:v]
-# run ./test/test.sh once in container
+
+# not working currently
