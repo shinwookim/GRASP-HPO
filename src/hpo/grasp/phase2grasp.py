@@ -32,7 +32,7 @@ class LocalSearch:
         self.set_param(ranges)
         
         iter = 1
-        local_best_score, local_best_sol = 0, {}
+        local_best_sol, local_best_score = {}, 0
 
         while not intermed_best_sols.empty():
         
@@ -45,10 +45,10 @@ class LocalSearch:
             if tmp_score > local_best_score:
                 local_best_score = tmp_score
                 local_best_sol = tmp_sol
-                if verbose: print('After LS iteration {}: LS found neighbor solution w/ higher k-fold mean than phase 1'.format(iter, local_best_sol, local_best_score))
+                if verbose: print('After LS iteration {}: LS found neighbor solution w/ higher f-1 mean than phase 1'.format(iter, local_best_sol, local_best_score))
             iter += 1
 
-        return local_best_score, local_best_sol
+        return local_best_sol, local_best_score
 
 
 
