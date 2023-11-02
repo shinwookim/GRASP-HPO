@@ -29,7 +29,7 @@ def evaluate_hpo(strategy_name, dataset):
     )
     end_time = time.time()
     evaluation_time = end_time - start_time
-    return best_trial_score, best_trial_config, evaluation_time
+    return best_trial_score
 
 
 def plot(data):
