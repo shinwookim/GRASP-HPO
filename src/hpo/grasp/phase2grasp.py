@@ -3,7 +3,6 @@ from queue import PriorityQueue
 
 class LocalSearch:
 
-
     # for functions that tweak: this number is the +/-% for how much the tweaked parameter is changed (/2)
     margin = .3
 
@@ -21,7 +20,7 @@ class LocalSearch:
             if type(v[0]) == int: self.int_hps.append(k)
 
     def set_margin (self, num):
-        if num > .05 and num < .95: self.margin = num
+        if num >= .00 and num <= 2.0: self.margin = num
         
     def set_iter (self, num):
         if num > 0 and num < 512: self.max_iter = num
@@ -69,7 +68,20 @@ class LocalSearch:
 
         return best_score, best_sol
     
+    reinit_one = """
+    def generate_neighbor(self, current_solution):
+        neighbor_solution = current_solution.copy()
+        param_to_perturb = random.choice(list(neighbor_solution.keys()))
+        neighbor_solution[param_to_perturb] = self.get_random_hyperparameter_value(param_to_perturb)
+        return neighbor_solution
 
+    def get_random_hyperparameter_value(self, hyperparameter):
+        if hyperparameter in ['n_estimators', 'max_depth']:
+            return random.randint(self.hp_ranges[hyperparameter][0], self.hp_ranges[hyperparameter][1])
+        else:
+            return random.uniform(self.hp_ranges[hyperparameter][0], self.hp_ranges[hyperparameter][1])
+    """
+    
     # change all hp's of cur_solution slightly (by self.margin)
     # do not go over or under original HP bounds
     def generate_neighbor (self, cur_solution: dict):
