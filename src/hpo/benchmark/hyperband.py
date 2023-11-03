@@ -33,7 +33,7 @@ class Hyperband(HPOStrategy):
                 train_set,
                 num_boost_round,
                 evals=[(test_set, "eval")],
-                verbose_eval=True,
+                verbose_eval=False,
                 custom_metric=evaluate_f1_score,
                 callbacks=[TuneReportCheckpointCallback({"f1_score": "eval-f1_score"})],
             )
