@@ -35,24 +35,20 @@ class HyperOpt(HPOStrategy):
                 train_set,
                 num_boost_round,
                 evals=[(test_set, "eval")],
-                verbose_eval=True,
+                verbose_eval=False,
                 custom_metric=evaluate_f1_score,
                 callbacks=[TuneReportCheckpointCallback({"f1_score": "eval-f1_score"})],
             )
 
         # Define the hyperparameter search space
         search_space = {
-            # You can mix constants with search space objects.
-            "objective": "binary:logistic",
-            "disable_default_eval_metric": 1,
-            "max_depth": hp.randint("max_depth", 3, 10),
-            "min_child_weight": hp.uniform("min_child_weight", 1, 10),
-            "subsample": hp.uniform("subsample", 0.5, 1.0),
-            "colsample_bytree": hp.uniform("colsample_bytree", 0.5, 1.0),
-            "learning_rate": hp.loguniform("learning_rate", 1e-3, 1.0),
-            "gamma": hp.uniform("gamma", 0, 1),
-            "n_estimators": hp.choice("n_estimators", [50, 500]),
-            "num_boost_round": hp.choice("num_boost_round", [10, 50, 100]),
+            "max_depth": hp.randint("max_depth", search_space['max_depth'][0], search_space['max_depth'][1]),
+            "subsample": hp.uniform("subsample", search_space['subsample'][0], search_space['subsample'][1]),
+            "colsample_bytree": hp.uniform("colsample_bytree", search_space['colsample_bytree'][0], search_space['colsample_bytree'][1]),
+            "n_estimators": hp.randint("n_estimators", search_space['n_estimators'][0], search_space['n_estimators'][1]),
+            "reg_lambda": hp.uniform("reg_lambda", search_space['reg_lambda'][0], search_space['reg_lambda'][1]),
+            "log_level": "ERROR",
+            "num_boost_round": hp.choice("num_boost_round", [10, 50, 100])
         }
 
         # Change objective for multi-class
