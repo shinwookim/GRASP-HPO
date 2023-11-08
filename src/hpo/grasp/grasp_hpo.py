@@ -1,3 +1,4 @@
+import numpy as np
 from xgboost import XGBClassifier
 from sklearn.metrics import f1_score
 
@@ -24,6 +25,11 @@ class GraspHpo(HPOStrategy):
 
     @staticmethod
     def evaluate_solution(params, x_train, x_test, y_train, y_test):
+        class_quantity = len(np.unique(y_train))
+        if class_quantity > 2:
+            params["objective"] = "multi:softmax"
+            params["num_class"] = str(class_quantity)
+
         xgboost_classifier = XGBClassifier(**params)
         xgboost_classifier.fit(x_train, y_train)
         y_pred = xgboost_classifier.predict(x_test)
