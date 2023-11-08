@@ -1,0 +1,503 @@
+╭──────────────────────────────────────────────────────╮
+│ Configuration for experiment     bohb_optimization   │
+├──────────────────────────────────────────────────────┤
+│ Search algorithm                 SearchGenerator     │
+│ Scheduler                        HyperBandForBOHB    │
+│ Number of trials                 100                 │
+╰──────────────────────────────────────────────────────╯
+
+View detailed results here: /home/yinuo/ray_results/bohb_optimization
+To visualize your results with TensorBoard, run: `tensorboard --logdir /home/yinuo/ray_results/bohb_optimization`
+
+Trial status: 1 PENDING
+Current time: 2023-11-07 20:32:36. Total running time: 0s
+Logical resource usage: 1.0/20 CPUs, 0/0 GPUs
+╭────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ Trial name                   status       n_estimators     max_depth     colsample_bytree     reg_lambda     subsample │
+├────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ evaluate_solution_9072921d   PENDING               239             7             0.598254       0.948936      0.578633 │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_9072921d started with configuration:
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_9072921d config             │
+├─────────────────────────────────────────────────────┤
+│ colsample_bytree                            0.59825 │
+│ max_depth                                         7 │
+│ n_estimators                                    239 │
+│ reg_lambda                                  0.94894 │
+│ subsample                                   0.57863 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_9072921d finished iteration 1 at 2023-11-07 20:32:37. Total running time: 1s
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_9072921d result             │
+├─────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                                 │
+│ time_this_iter_s                            0.18502 │
+│ time_total_s                                0.18502 │
+│ training_iteration                                1 │
+│ f1_score                                     0.9464 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_7c3a87da started with configuration:
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_7c3a87da config             │
+├─────────────────────────────────────────────────────┤
+│ colsample_bytree                             0.9377 │
+│ max_depth                                         6 │
+│ n_estimators                                    299 │
+│ reg_lambda                                  0.53088 │
+│ subsample                                   0.88622 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_7c3a87da finished iteration 1 at 2023-11-07 20:32:37. Total running time: 1s
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_7c3a87da result             │
+├─────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                                 │
+│ time_this_iter_s                            0.04926 │
+│ time_total_s                                0.04926 │
+│ training_iteration                                1 │
+│ f1_score                                    0.96451 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_f6809aa0 started with configuration:
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_f6809aa0 config             │
+├─────────────────────────────────────────────────────┤
+│ colsample_bytree                            0.57892 │
+│ max_depth                                         6 │
+│ n_estimators                                    184 │
+│ reg_lambda                                  0.49806 │
+│ subsample                                   0.56598 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_f6809aa0 finished iteration 1 at 2023-11-07 20:32:38. Total running time: 1s
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_f6809aa0 result             │
+├─────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                                 │
+│ time_this_iter_s                             0.0412 │
+│ time_total_s                                 0.0412 │
+│ training_iteration                                1 │
+│ f1_score                                    0.95549 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_170e2f3b started with configuration:
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_170e2f3b config             │
+├─────────────────────────────────────────────────────┤
+│ colsample_bytree                            0.85702 │
+│ max_depth                                         4 │
+│ n_estimators                                    221 │
+│ reg_lambda                                  0.68537 │
+│ subsample                                   0.73777 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_170e2f3b finished iteration 1 at 2023-11-07 20:32:38. Total running time: 1s
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_170e2f3b result             │
+├─────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                                 │
+│ time_this_iter_s                            0.03901 │
+│ time_total_s                                0.03901 │
+│ training_iteration                                1 │
+│ f1_score                                     0.9464 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_0bb79f4d started with configuration:
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_0bb79f4d config             │
+├─────────────────────────────────────────────────────┤
+│ colsample_bytree                            0.70669 │
+│ max_depth                                         4 │
+│ n_estimators                                    378 │
+│ reg_lambda                                  0.29561 │
+│ subsample                                   0.99474 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_0bb79f4d finished iteration 1 at 2023-11-07 20:32:38. Total running time: 1s
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_0bb79f4d result             │
+├─────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                                 │
+│ time_this_iter_s                            0.04968 │
+│ time_total_s                                0.04968 │
+│ training_iteration                                1 │
+│ f1_score                                    0.95549 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_5ec83296 started with configuration:
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_5ec83296 config             │
+├─────────────────────────────────────────────────────┤
+│ colsample_bytree                            0.65952 │
+│ max_depth                                         8 │
+│ n_estimators                                    407 │
+│ reg_lambda                                  0.49245 │
+│ subsample                                   0.66896 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_5ec83296 finished iteration 1 at 2023-11-07 20:32:38. Total running time: 1s
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_5ec83296 result             │
+├─────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                                 │
+│ time_this_iter_s                            0.06386 │
+│ time_total_s                                0.06386 │
+│ training_iteration                                1 │
+│ f1_score                                    0.97347 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_4cdfff9b started with configuration:
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_4cdfff9b config             │
+├─────────────────────────────────────────────────────┤
+│ colsample_bytree                            0.58913 │
+│ max_depth                                         4 │
+│ n_estimators                                     68 │
+│ reg_lambda                                   0.8819 │
+│ subsample                                   0.60954 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_4cdfff9b finished iteration 1 at 2023-11-07 20:32:38. Total running time: 1s
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_4cdfff9b result             │
+├─────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                                 │
+│ time_this_iter_s                            0.02497 │
+│ time_total_s                                0.02497 │
+│ training_iteration                                1 │
+│ f1_score                                    0.96451 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_1bac3f69 started with configuration:
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_1bac3f69 config             │
+├─────────────────────────────────────────────────────┤
+│ colsample_bytree                            0.81792 │
+│ max_depth                                         4 │
+│ n_estimators                                    261 │
+│ reg_lambda                                  0.03798 │
+│ subsample                                   0.66333 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_1bac3f69 finished iteration 1 at 2023-11-07 20:32:38. Total running time: 1s
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_1bac3f69 result             │
+├─────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                                 │
+│ time_this_iter_s                            0.06315 │
+│ time_total_s                                0.06315 │
+│ training_iteration                                1 │
+│ f1_score                                     0.9464 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_9733bc9c started with configuration:
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_9733bc9c config             │
+├─────────────────────────────────────────────────────┤
+│ colsample_bytree                            0.94879 │
+│ max_depth                                         3 │
+│ n_estimators                                    299 │
+│ reg_lambda                                  0.64623 │
+│ subsample                                   0.56178 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_9733bc9c finished iteration 1 at 2023-11-07 20:32:38. Total running time: 1s
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_9733bc9c result             │
+├─────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                                 │
+│ time_this_iter_s                            0.05246 │
+│ time_total_s                                0.05246 │
+│ training_iteration                                1 │
+│ f1_score                                    0.96451 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_a6edd42f started with configuration:
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_a6edd42f config             │
+├─────────────────────────────────────────────────────┤
+│ colsample_bytree                            0.52989 │
+│ max_depth                                         9 │
+│ n_estimators                                    207 │
+│ reg_lambda                                   0.8451 │
+│ subsample                                   0.50866 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_a6edd42f finished iteration 1 at 2023-11-07 20:32:38. Total running time: 1s
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_a6edd42f result             │
+├─────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                                 │
+│ time_this_iter_s                            0.05603 │
+│ time_total_s                                0.05603 │
+│ training_iteration                                1 │
+│ f1_score                                     0.9464 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_68a1891a started with configuration:
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_68a1891a config             │
+├─────────────────────────────────────────────────────┤
+│ colsample_bytree                            0.79174 │
+│ max_depth                                         6 │
+│ n_estimators                                     58 │
+│ reg_lambda                                  0.53701 │
+│ subsample                                   0.82052 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_68a1891a finished iteration 1 at 2023-11-07 20:32:38. Total running time: 1s
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_68a1891a result             │
+├─────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                                 │
+│ time_this_iter_s                            0.03355 │
+│ time_total_s                                0.03355 │
+│ training_iteration                                1 │
+│ f1_score                                    0.95549 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_bf3630fd started with configuration:
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_bf3630fd config             │
+├─────────────────────────────────────────────────────┤
+│ colsample_bytree                            0.90794 │
+│ max_depth                                         9 │
+│ n_estimators                                    428 │
+│ reg_lambda                                  0.07159 │
+│ subsample                                   0.55929 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_bf3630fd finished iteration 1 at 2023-11-07 20:32:38. Total running time: 1s
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_bf3630fd result             │
+├─────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                                 │
+│ time_this_iter_s                            0.08286 │
+│ time_total_s                                0.08286 │
+│ training_iteration                                1 │
+│ f1_score                                    0.96451 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_b4c93b98 started with configuration:
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_b4c93b98 config             │
+├─────────────────────────────────────────────────────┤
+│ colsample_bytree                            0.53758 │
+│ max_depth                                         4 │
+│ n_estimators                                    300 │
+│ reg_lambda                                   0.6855 │
+│ subsample                                   0.65675 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_b4c93b98 finished iteration 1 at 2023-11-07 20:32:38. Total running time: 2s
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_b4c93b98 result             │
+├─────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                                 │
+│ time_this_iter_s                              0.081 │
+│ time_total_s                                  0.081 │
+│ training_iteration                                1 │
+│ f1_score                                    0.95549 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_57a94a83 started with configuration:
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_57a94a83 config             │
+├─────────────────────────────────────────────────────┤
+│ colsample_bytree                            0.95369 │
+│ max_depth                                         9 │
+│ n_estimators                                    463 │
+│ reg_lambda                                  0.73568 │
+│ subsample                                   0.58781 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_57a94a83 finished iteration 1 at 2023-11-07 20:32:38. Total running time: 2s
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_57a94a83 result             │
+├─────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                                 │
+│ time_this_iter_s                              0.107 │
+│ time_total_s                                  0.107 │
+│ training_iteration                                1 │
+│ f1_score                                    0.95549 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_4eb97efd started with configuration:
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_4eb97efd config             │
+├─────────────────────────────────────────────────────┤
+│ colsample_bytree                            0.91324 │
+│ max_depth                                         7 │
+│ n_estimators                                    185 │
+│ reg_lambda                                  0.02182 │
+│ subsample                                   0.77473 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_4eb97efd finished iteration 1 at 2023-11-07 20:32:38. Total running time: 2s
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_4eb97efd result             │
+├─────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                                 │
+│ time_this_iter_s                            0.07266 │
+│ time_total_s                                0.07266 │
+│ training_iteration                                1 │
+│ f1_score                                    0.95549 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_848d0632 started with configuration:
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_848d0632 config             │
+├─────────────────────────────────────────────────────┤
+│ colsample_bytree                            0.67512 │
+│ max_depth                                         9 │
+│ n_estimators                                    394 │
+│ reg_lambda                                  0.41901 │
+│ subsample                                   0.74478 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_848d0632 finished iteration 1 at 2023-11-07 20:32:39. Total running time: 2s
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_848d0632 result             │
+├─────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                                 │
+│ time_this_iter_s                            0.09215 │
+│ time_total_s                                0.09215 │
+│ training_iteration                                1 │
+│ f1_score                                    0.93723 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_20776642 started with configuration:
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_20776642 config             │
+├─────────────────────────────────────────────────────┤
+│ colsample_bytree                            0.60333 │
+│ max_depth                                         9 │
+│ n_estimators                                    409 │
+│ reg_lambda                                  0.52006 │
+│ subsample                                   0.77491 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_20776642 finished iteration 1 at 2023-11-07 20:32:39. Total running time: 2s
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_20776642 result             │
+├─────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                                 │
+│ time_this_iter_s                            0.08174 │
+│ time_total_s                                0.08174 │
+│ training_iteration                                1 │
+│ f1_score                                     0.9464 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_386f7b87 started with configuration:
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_386f7b87 config             │
+├─────────────────────────────────────────────────────┤
+│ colsample_bytree                             0.9655 │
+│ max_depth                                         7 │
+│ n_estimators                                    478 │
+│ reg_lambda                                  0.56215 │
+│ subsample                                   0.97384 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_386f7b87 finished iteration 1 at 2023-11-07 20:32:39. Total running time: 2s
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_386f7b87 result             │
+├─────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                                 │
+│ time_this_iter_s                            0.11374 │
+│ time_total_s                                0.11374 │
+│ training_iteration                                1 │
+│ f1_score                                    0.95549 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_21af0f40 started with configuration:
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_21af0f40 config             │
+├─────────────────────────────────────────────────────┤
+│ colsample_bytree                            0.90765 │
+│ max_depth                                         9 │
+│ n_estimators                                    411 │
+│ reg_lambda                                  0.16495 │
+│ subsample                                   0.52716 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_21af0f40 finished iteration 1 at 2023-11-07 20:32:39. Total running time: 2s
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_21af0f40 result             │
+├─────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                                 │
+│ time_this_iter_s                            0.11829 │
+│ time_total_s                                0.11829 │
+│ training_iteration                                1 │
+│ f1_score                                     0.9464 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_041a4e45 started with configuration:
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_041a4e45 config             │
+├─────────────────────────────────────────────────────┤
+│ colsample_bytree                            0.88487 │
+│ max_depth                                         4 │
+│ n_estimators                                    425 │
+│ reg_lambda                                  0.93547 │
+│ subsample                                    0.5253 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_041a4e45 finished iteration 1 at 2023-11-07 20:32:39. Total running time: 2s
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_041a4e45 result             │
+├─────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                                 │
+│ time_this_iter_s                            0.10207 │
+│ time_total_s                                0.10207 │
+│ training_iteration                                1 │
+│ f1_score                                    0.93768 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_ea4e1f10 started with configuration:
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_ea4e1f10 config             │
+├─────────────────────────────────────────────────────┤
+│ colsample_bytree                            0.64858 │
+│ max_depth                                         6 │
+│ n_estimators                                    178 │
+│ reg_lambda                                   0.2963 │
+│ subsample                                   0.53282 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_ea4e1f10 finished iteration 1 at 2023-11-07 20:32:39. Total running time: 2s
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_ea4e1f10 result             │
+├─────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                                 │
+│ time_this_iter_s                            0.06638 │
+│ time_total_s                                0.06638 │
+│ training_iteration                                1 │
+│ f1_score                                    0.93723 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_179f2364 started with configuration:
+╭─────────────────────────────────────────────────────╮
+│ Trial evaluate_solution_179f2364 config             │
+├─────────────────────────────────────────────────────┤
+│ colsample_bytree                            0.77908 │
+│ max_depth                                         6 │
+│ n_estimators                                    239 │
+│ reg_lambda                                  0.65368 │
+│ subsample                                   0.82457 │
+╰─────────────────────────────────────────────────────╯
+
+Trial evaluate_solution_717416a3 errored after 0 iterations at 2023-11-07 20:32:53. Total running time: 16s
+Error file: /home/yinuo/ray_results/bohb_optimization/evaluate_solution_717416a3_23_colsample_bytree=0.9891,max_depth=8,n_estimators=53,reg_lambda=0.6017,subsample=0.8177_2023-11-07_20-32-39/error.txt
+
+Trial evaluate_solution_179f2364 errored after 0 iterations at 2023-11-07 20:32:53. Total running time: 16s
+Error file: /home/yinuo/ray_results/bohb_optimization/evaluate_solution_179f2364_22_colsample_bytree=0.7791,max_depth=6,n_estimators=239,reg_lambda=0.6537,subsample=0.8246_2023-11-07_20-32-39/error.txt
+
+Trial status: 21 PAUSED | 2 ERROR | 1 PENDING
+Current time: 2023-11-07 20:33:07. Total running time: 30s
+Logical resource usage: 1.0/0 CPUs, 0/0 GPUs
+Current best trial: 5ec83296 with f1_score=0.9734654095556352 and params={'n_estimators': 407, 'max_depth': 8, 'colsample_bytree': 0.6595227779018332, 'reg_lambda': 0.4924477172212686, 'subsample': 0.6689621998151959}
