@@ -14,7 +14,7 @@ class ErenoProcessor:
     @staticmethod
     def load_data():
         root_dir = Path(__file__).resolve().parent.parent.parent.parent
-        data_df = pd.read_csv(root_dir / "data" / "erenoFull.csv", sep=',')
+        data_df = pd.read_csv(root_dir / "data" / "test04.csv", sep=',')
 
         columns_to_remove = ['ethDst', 'ethSrc', 'ethType', 'gooseAppid', 'TPID', 'gocbRef', 'datSet', 'goID', 'test', 'ndsCom', 'protocol']
 

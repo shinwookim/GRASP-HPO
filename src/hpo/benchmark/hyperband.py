@@ -39,19 +39,18 @@ class Hyperband(HPOStrategy):
             )
 
         # Define the hyperparameter search space
-        search_space = {
+        tuner_search_space = {
             "max_depth": tune.randint(search_space['max_depth'][0], search_space['max_depth'][1]),
             "subsample": tune.uniform(search_space['subsample'][0], search_space['subsample'][1]),
             "colsample_bytree": tune.uniform(search_space['colsample_bytree'][0], search_space['colsample_bytree'][1]),
             "n_estimators": tune.randint(search_space['n_estimators'][0], search_space['n_estimators'][1]),
             "reg_lambda": tune.uniform(search_space['reg_lambda'][0], search_space['reg_lambda'][1]),
-            "log_level": "ERROR",
             "num_boost_round": tune.choice([10, 50, 100])
         }
         # Change objective for multi-class
         if len(np.unique(y_train)) > 2:
-            search_space["objective"] = "multi:softmax"
-            search_space["num_class"] = str(len(np.unique(y_train)))
+            tuner_search_space["objective"] = "multi:softmax"
+            tuner_search_space["num_class"] = str(len(np.unique(y_train)))
 
         # Define the ASHA scheduler for hyperparameter optimization
         scheduler = ASHAScheduler(
@@ -69,7 +68,7 @@ class Hyperband(HPOStrategy):
             tune_config=tune.TuneConfig(
                 mode="max", metric="f1_score", scheduler=scheduler, num_samples=10
             ),
-            param_space=search_space,
+            param_space=tuner_search_space,
             run_config=run_config,
         )
         results = tuner.fit()
