@@ -14,13 +14,9 @@ class ErenoProcessor:
     @staticmethod
     def load_data():
         root_dir = Path(__file__).resolve().parent.parent.parent.parent
-        data_df = pd.read_csv(root_dir / "data" / "test04.csv", sep=',')
+        data_df = pd.read_csv(root_dir / "data" / "hybridGoose.csv", sep=',')
 
-        columns_to_remove = ['ethDst', 'ethSrc', 'ethType', 'gooseAppid', 'TPID', 'gocbRef', 'datSet', 'goID', 'test', 'ndsCom', 'protocol']
-
-        data_df = data_df.dropna(axis=1).drop(columns=columns_to_remove, errors='ignore')
-
-        data = data_df.drop(columns=['@class@'])
+        data = data_df.drop(columns=['@class@']).apply(pd.to_numeric, errors='coerce').dropna(axis=1)
 
         label_encoder = LabelEncoder()
         labels = data_df['@class@']

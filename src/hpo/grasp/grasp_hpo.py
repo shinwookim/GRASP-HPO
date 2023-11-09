@@ -7,14 +7,15 @@ from src.hpo.grasp.phase1grasp import Construction
 from src.hpo.grasp.phase2grasp import LocalSearch
 
 
-LOCAL_SEARCH_ITERATIONS = 10
-BUILDING_PHASE_ITERATIONS = 10
+LOCAL_SEARCH_ITERATIONS = 5
+BUILDING_PHASE_ITERATIONS = 5
+INTERMEDIATE_RESULTS_SIZE = 3
 
 
 class GraspHpo(HPOStrategy):
 
     def __init__(self) -> None:
-        self.phase1 = Construction(self.evaluate_solution, BUILDING_PHASE_ITERATIONS)
+        self.phase1 = Construction(self.evaluate_solution, BUILDING_PHASE_ITERATIONS, INTERMEDIATE_RESULTS_SIZE)
         self.phase2 = LocalSearch(self.evaluate_solution, LOCAL_SEARCH_ITERATIONS)
 
     def hyperparameter_optimization(self, x_train, x_test, y_train, y_test, search_space):

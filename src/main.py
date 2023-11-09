@@ -1,3 +1,4 @@
+import pandas as pd
 from sklearn.model_selection import train_test_split
 
 from src.input.dataset_factory import DatasetFactory
@@ -37,7 +38,7 @@ class Main:
     @staticmethod
     def main():
         dataset_names = ['Ereno', 'Breast Cancer', 'Digits', 'Iris', 'Wine']
-        strategies = ['Hyperband', 'GraspHpo']
+        strategies = ['Hyperband', 'GraspHpo', 'None']
 
         data = []
 
@@ -54,6 +55,9 @@ class Main:
                 })
 
         plot(data)
+        results_df = pd.DataFrame(data)
+
+        results_df.to_csv("hyperparameter_results10_10_5.csv", index=False)
 
 
 if __name__ == "__main__":

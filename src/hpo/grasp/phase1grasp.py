@@ -6,9 +6,10 @@ from queue import PriorityQueue
 
 class Construction:
     
-    def __init__(self, evaluate, MAX) -> None:
+    def __init__(self, evaluate, iterations_quantity, intermediate_results_size) -> None:
         self.evaluate = evaluate
-        self.max_iter = MAX
+        self.max_iter = iterations_quantity
+        self.intermediate_results_size = intermediate_results_size
 
     @staticmethod
     def get_random_hyperparameter_value(hyperparameter, hyperparameter_range):
@@ -20,7 +21,6 @@ class Construction:
     def building_phase(self, x_train, x_test, y_train, y_test, search_space):
         # print('\nStarting building phase...')
         best_intermediate_combinations = PriorityQueue()
-        intermediate_results_size = 5
         for i in range(self.max_iter):
 
             scaler = StandardScaler()
@@ -38,7 +38,7 @@ class Construction:
             f1_score = self.evaluate(selected_hyperparameters, x_train, x_test, y_train, y_test)
 
             best_intermediate_combinations.put((f1_score, uuid.uuid4(), selected_hyperparameters))
-            if best_intermediate_combinations.qsize() > intermediate_results_size:
+            if best_intermediate_combinations.qsize() > self.intermediate_results_size:
                 best_intermediate_combinations.get()
 
         return best_intermediate_combinations
