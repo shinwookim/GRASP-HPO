@@ -2,13 +2,11 @@ import sklearn.datasets
 import numpy as np
 import sklearn.metrics
 import xgboost
-from ray import train, tune
+from ray import tune
 from ray.tune.schedulers import ASHAScheduler
 from ray.tune.integration.xgboost import TuneReportCheckpointCallback
 from src.hpo.hpo_strategy import HPOStrategy
 from ray.train import RunConfig
-from ray.tune.search import ConcurrencyLimiter
-from ray.tune.schedulers import AsyncHyperBandScheduler
 from ray.tune.search.hyperopt import HyperOptSearch
 from hyperopt import hp
 
