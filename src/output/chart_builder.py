@@ -2,7 +2,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 
 
-def plot(data):
+def plot(data, save_path):
     df = pd.DataFrame(data)
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
@@ -23,4 +23,6 @@ def plot(data):
 
     plt.xticks(rotation=0)
     plt.tight_layout()
-    plt.show()
+
+    plt.savefig(save_path+"/chart.png", format='png')
+    df.to_csv(save_path+"/table.csv", index=False)

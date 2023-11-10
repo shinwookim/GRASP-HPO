@@ -13,8 +13,7 @@ class Dataset:
 class ErenoProcessor:
     @staticmethod
     def load_data():
-        root_dir = Path(__file__).resolve().parent.parent.parent.parent
-        data_df = pd.read_csv(root_dir / "data" / "hybridGoose.csv", sep=',')
+        data_df = pd.read_csv("./input/data/hybridGoose.csv", sep=',')
 
         data = data_df.drop(columns=['@class@']).apply(pd.to_numeric, errors='coerce').dropna(axis=1)
 

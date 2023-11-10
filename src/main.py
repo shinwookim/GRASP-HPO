@@ -57,10 +57,7 @@ class Main:
                     "evaluation_time": evaluation_time
                 })
 
-        plot(data)
-        results_df = pd.DataFrame(data)
-
-        results_df.to_csv("hyperparameter_results.csv", index=False)
+        plot(data, "output/results")
 
 
 if __name__ == "__main__":
