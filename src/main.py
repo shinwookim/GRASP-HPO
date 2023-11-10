@@ -8,11 +8,14 @@ import time
 from src.output.chart_builder import plot
 
 HYPERPARAMETER_RANGES = {
-    'n_estimators': (50, 500),
+    'n_estimators': ([100, 200, 300]),
     'max_depth': (3, 10),
     'colsample_bytree': (0.5, 1),
     'reg_lambda': (0.01, 1.0),
-    'subsample': (0.5, 1.0)
+    'subsample': (0.5, 1.0),
+    "min_child_weight": (1, 10),
+    "learning_rate": (1e-3, 0.1),
+    "gamma": (0, 1)
 }
 
 

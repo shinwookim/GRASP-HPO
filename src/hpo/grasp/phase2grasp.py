@@ -72,7 +72,7 @@ class LocalSearch:
 
         neighbor = cur_solution.copy()
         for hp in neighbor.keys():
-            if hp in ['objective', 'num_class']:
+            if hp in ['objective', 'num_class', 'n_estimators']:
                 continue
 
             plus_minus = (self.hp_ranges[hp][1] - self.hp_ranges[hp][0]) * (self.margin / 2.0)

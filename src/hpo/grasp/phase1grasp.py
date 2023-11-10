@@ -13,8 +13,12 @@ class Construction:
 
     @staticmethod
     def get_random_hyperparameter_value(hyperparameter, hyperparameter_range):
-        if hyperparameter in ['n_estimators', 'max_depth']:
+        if hyperparameter in ['max_depth']:
             return random.randint(hyperparameter_range[0], hyperparameter_range[1])
+        elif hyperparameter in ['n_estimators']:
+            return random.choice(hyperparameter_range)
+        elif hyperparameter in ['learning_rate']:
+            return random.lognormvariate(hyperparameter_range[0], hyperparameter_range[1])
         else:
             return random.uniform(hyperparameter_range[0], hyperparameter_range[1])
 
@@ -32,7 +36,10 @@ class Construction:
                 'max_depth': self.get_random_hyperparameter_value('max_depth', search_space['max_depth']),
                 'colsample_bytree': self.get_random_hyperparameter_value('colsample_bytree', search_space['colsample_bytree']),
                 'reg_lambda': self.get_random_hyperparameter_value('reg_lambda', search_space['reg_lambda']),
-                'subsample': self.get_random_hyperparameter_value('subsample', search_space['subsample'])
+                'subsample': self.get_random_hyperparameter_value('subsample', search_space['subsample']),
+                "min_child_weight":  self.get_random_hyperparameter_value('min_child_weight', search_space['min_child_weight']),
+                "learning_rate":  self.get_random_hyperparameter_value('learning_rate', search_space['learning_rate']),
+                "gamma":  self.get_random_hyperparameter_value('gamma', search_space['gamma'])
             }
 
             f1_score = self.evaluate(selected_hyperparameters, x_train, x_test, y_train, y_test)

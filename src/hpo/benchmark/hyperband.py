@@ -27,11 +27,9 @@ class Hyperband(HPOStrategy):
         def train_xgboost(config: dict):
             train_set = xgboost.DMatrix(data=x_train, label=y_train)
             test_set = xgboost.DMatrix(data=x_test, label=y_test)
-            num_boost_round = config.pop("num_boost_round")
             xgboost.train(
                 config,
                 train_set,
-                num_boost_round,
                 evals=[(test_set, "eval")],
                 verbose_eval=False,
                 custom_metric=evaluate_f1_score,
@@ -43,9 +41,11 @@ class Hyperband(HPOStrategy):
             "max_depth": tune.randint(search_space['max_depth'][0], search_space['max_depth'][1]),
             "subsample": tune.uniform(search_space['subsample'][0], search_space['subsample'][1]),
             "colsample_bytree": tune.uniform(search_space['colsample_bytree'][0], search_space['colsample_bytree'][1]),
-            "n_estimators": tune.randint(search_space['n_estimators'][0], search_space['n_estimators'][1]),
+            "n_estimators": tune.choice(search_space['n_estimators']),
             "reg_lambda": tune.uniform(search_space['reg_lambda'][0], search_space['reg_lambda'][1]),
-            "num_boost_round": tune.choice([10, 50, 100])
+            "min_child_weight": tune.uniform(search_space['min_child_weight'][0], search_space['min_child_weight'][1]),
+            "learning_rate": tune.loguniform(search_space['learning_rate'][0], search_space['learning_rate'][1]),
+            "gamma": tune.uniform(search_space['gamma'][0], search_space['gamma'][1]),
         }
         # Change objective for multi-class
         if len(np.unique(y_train)) > 2:
