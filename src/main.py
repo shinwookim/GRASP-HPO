@@ -41,7 +41,7 @@ class Main:
     @staticmethod
     def main():
         dataset_names = ['Ereno', 'Breast Cancer', 'Digits', 'Iris', 'Wine']
-        strategies = ['Hyperband', 'GraspHpo', 'None']
+        strategies = ['HyperOpt', 'Hyperband', 'GraspHpo', 'None']
 
         data = []
 
@@ -60,7 +60,7 @@ class Main:
         plot(data)
         results_df = pd.DataFrame(data)
 
-        results_df.to_csv("hyperparameter_results10_10_5.csv", index=False)
+        results_df.to_csv("hyperparameter_results.csv", index=False)
 
 
 if __name__ == "__main__":
