@@ -70,14 +70,14 @@ class Construction:
                 best_eval_hps=ret_hp_val_list
         return (best_eval,best_eval_hps)
     
-    def random_search(self, x_train, x_test, y_train, y_test, search_space):
+    def random_search(self, x_train, x_test, y_test, search_space):
         best_intermediate_combinations = PriorityQueue()
         intermediate_results_size = 20
         for i in range(self.max_iter):
 
-            scaler = StandardScaler()
-            x_train = scaler.fit_transform(x_train)
-            x_test = scaler.transform(x_test)
+            #scaler = StandardScaler()
+            #x_train = scaler.fit_transform(x_train)
+            #x_test = scaler.transform(x_test)
 
             selected_hyperparameters = {
                 'n_estimators': self.get_random_hyperparameter_value('n_estimators', search_space['n_estimators']),
@@ -87,7 +87,7 @@ class Construction:
                 'subsample': self.get_random_hyperparameter_value('subsample', search_space['subsample'])
             }
 
-            f1_score = self.evaluate(selected_hyperparameters, x_train, x_test, y_train, y_test)
+            f1_score = self.evaluate(selected_hyperparameters, x_train, x_test, y_test)
 
             best_intermediate_combinations.put((f1_score, uuid.uuid4(), selected_hyperparameters))
             if best_intermediate_combinations.qsize() > intermediate_results_size:
@@ -98,7 +98,7 @@ class Construction:
         return best_intermediate_combinations
 
 
-    def building_phase(self, x_train, x_test, y_train, y_test, search_space):
+    def building_phase(self, x_train, x_test, y_test, search_space):
         # print('\nStarting building phase...')
-        return self.random_search(x_train, x_test, y_train, y_test, search_space)
+        return self.random_search(x_train, x_test, y_test, search_space)
         #return self.grid_search(2,x_train, x_test, y_train, y_test, search_space)

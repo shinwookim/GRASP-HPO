@@ -27,7 +27,7 @@ class LocalSearch:
 
 
 
-    def local_search (self, intermed_best_sols: PriorityQueue, x_train, x_test, y_train, y_test, ranges: dict, verbose=False):
+    def local_search (self, intermed_best_sols: PriorityQueue, x_train, x_test, y_test, ranges: dict, verbose=False):
         self.set_param(ranges)
         
         iter = 1
@@ -38,7 +38,7 @@ class LocalSearch:
             cur = intermed_best_sols.get()
 
             if verbose: print('LS iteration {}: \nBest solution after phase 1: {}\nCorresponding score: {}'.format(iter, cur[2], cur[0]))
-            tmp_score, tmp_sol = self.hill_climb(cur[2], x_train, x_test, y_train, y_test)
+            tmp_score, tmp_sol = self.hill_climb(cur[2], x_train, x_test, y_test)
             if verbose: print('LS iteration {}: \nBest solution after phase 2: {}\nCorresponding score: {}\n'.format(iter, tmp_sol, tmp_score))
 
             if tmp_score > local_best_score:
@@ -51,15 +51,15 @@ class LocalSearch:
 
 
 
-    def hill_climb (self, cur_sol: dict, x_train, x_test, y_train, y_test):
+    def hill_climb (self, cur_sol: dict, x_train, x_test, y_test):
 
         best_sol = cur_sol
-        best_score = self.evaluate(cur_sol, x_train, x_test, y_train, y_test)
+        best_score = self.evaluate(cur_sol, x_train, x_test, y_test)
 
         for _ in range(self.max_iter):
 
             neighbor_sol = self.generate_neighbor(cur_sol)
-            neighbor_score = self.evaluate(neighbor_sol, x_train, x_test, y_train, y_test)
+            neighbor_score = self.evaluate(neighbor_sol, x_train, x_test, y_test)
 
             if neighbor_score > best_score:
                 best_sol = neighbor_sol
