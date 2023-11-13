@@ -57,10 +57,17 @@ if __name__ == "__main__":
         'subsample': get_random_hyperparameter_value('subsample')
     }
 
+    bohb_scheduler = HyperBandForBOHB(
+        time_attr="training_iteration",
+        max_t = 100,  
+        reduction_factor = 3,
+        stop_last_trials = False
+    )
+
     analysis = tune.run(
         tune.with_parameters(evaluate_solution, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test),
         name="bohb_optimization",
-        scheduler = HyperBandForBOHB(),
+        scheduler = bohb_scheduler,
         search_alg=TuneBOHB(),
         config = selected_hyperparameters,
         num_samples=100,
