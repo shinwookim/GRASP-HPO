@@ -1,5 +1,6 @@
 from sklearn.model_selection import train_test_split
-from xgboost import XGBClassifier
+#from xgboost import XGBClassifier
+import xgboost as xgb
 from sklearn.metrics import f1_score
 
 from src.hpo.hpo_strategy import HPOStrategy
@@ -21,17 +22,50 @@ class GraspHpo(HPOStrategy):
     def hyperparameter_optimization(self, data, labels, search_space):
         x_train, x_test, y_train, y_test = self.prepare_dataset(data, labels)
 
-        best_intermediate_combinations = self.phase1.building_phase(x_train, x_test, y_train, y_test, search_space)
+        dtrain = xgb.DMatrix(x_train, label=y_train)
+        dtest = xgb.DMatrix(x_test, label=y_test) 
 
-        return self.phase2.local_search(best_intermediate_combinations, x_train, x_test, y_train, y_test, search_space)
+        best_intermediate_combinations = self.phase1.building_phase(dtrain, dtest, y_test, search_space)
+
+        return self.phase2.local_search(best_intermediate_combinations, dtrain, dtest, y_test, search_space)
 
 
     def prepare_dataset(self, data, labels):
         return train_test_split(data, labels, test_size=0.2, random_state=1)
 
 
-    def evaluate_solution(self, params, x_train, x_test, y_train, y_test):
-        xgboost_classifier = XGBClassifier(**params)
-        xgboost_classifier.fit(x_train, y_train)
-        y_pred = xgboost_classifier.predict(x_test)
-        return f1_score(y_test, y_pred, average='weighted')
+    #def evaluate_solution(self, params, x_train, x_test, y_train, y_test):
+    #    xgboost_classifier = XGBClassifier(**params)
+    #    xgboost_classifier.fit(x_train, y_train)
+    #    y_pred = xgboost_classifier.predict(x_test)
+    #    return f1_score(y_test, y_pred, average='weighted')
+    
+    def evaluate_solution(self, config, dtrain, dtest, y_test):
+        params = {
+            "objective": "binary:logistic",
+            "eval_metric": "logloss",
+            "max_depth": config["max_depth"],
+            #"min_child_weight": params["min_child_weight"],
+            "subsample": config["subsample"],
+            "colsample_bytree": config["colsample_bytree"],
+            #"eta": config["learning_rate"],
+            #"gamma": config["gamma"],
+            "lambda": config["reg_lambda"],
+            #"n_estimators": config["n_estimators"],
+            #"seed": 42,
+        }
+
+        evals = [(dtrain, "train"),(dtest, "eval")]
+        bst = xgb.train(
+            params, dtrain, num_boost_round = config["n_estimators"], evals=evals, verbose_eval=False
+        )
+
+        # Predict
+        preds = bst.predict(dtest)
+        threshold = 0.5  # You can adjust this threshold as needed
+        #print(preds)
+        binary_preds = [1 if p > threshold else 0 for p in preds]
+
+        # Calculate F1 score
+        f1 = f1_score(y_test, binary_preds)
+        return f1
