@@ -41,7 +41,7 @@ class Main:
     @staticmethod
     def main():
         dataset_names = ['Ereno', 'Breast Cancer', 'Digits', 'Iris', 'Wine']
-        strategies = ['HyperOpt', 'Hyperband', 'GraspHpo', 'None']
+        strategies = ['HyperOpt', 'Hyperband', 'GraspHpo', 'BOHB', 'None']
 
         data = []
 
