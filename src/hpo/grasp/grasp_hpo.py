@@ -42,8 +42,9 @@ class GraspHpo(HPOStrategy):
     
     def evaluate_solution(self, config, dtrain, dtest, y_test):
         params = {
-            "objective": "binary:logistic",
-            "eval_metric": "logloss",
+            "objective": "multi:softmax",
+            "eval_metric": "mlogloss",
+            "num_class": 10,
             "max_depth": config["max_depth"],
             #"min_child_weight": params["min_child_weight"],
             "subsample": config["subsample"],
@@ -52,7 +53,7 @@ class GraspHpo(HPOStrategy):
             #"gamma": config["gamma"],
             "lambda": config["reg_lambda"],
             #"n_estimators": config["n_estimators"],
-            #"seed": 42,
+            "seed": 42,
         }
 
         evals = [(dtrain, "train"),(dtest, "eval")]
@@ -62,10 +63,10 @@ class GraspHpo(HPOStrategy):
 
         # Predict
         preds = bst.predict(dtest)
-        threshold = 0.5  # You can adjust this threshold as needed
+        #threshold = 0.5  # You can adjust this threshold as needed
         #print(preds)
-        binary_preds = [1 if p > threshold else 0 for p in preds]
+        #binary_preds = [1 if p > threshold else 0 for p in preds]
 
         # Calculate F1 score
-        f1 = f1_score(y_test, binary_preds)
+        f1 = f1_score(y_test, preds,average='weighted')
         return f1

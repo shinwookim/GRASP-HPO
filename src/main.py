@@ -1,4 +1,4 @@
-from sklearn.datasets import load_breast_cancer
+from sklearn.datasets import load_breast_cancer, load_digits
 from src.hpo.hpo_factory import HPOFactory
 import logging
 
@@ -11,7 +11,7 @@ HYPERPARAMETER_RANGES = {
 }
 
 if __name__ == "__main__":
-    data, labels = load_breast_cancer(return_X_y=True)
+    data, labels = load_digits(return_X_y=True)
 
     grasp_hpo = HPOFactory.create_hpo_strategy('GraspHpo')
     grasp_best_trial_config, grasp_best_trial_score = grasp_hpo.hyperparameter_optimization(data, labels, HYPERPARAMETER_RANGES)

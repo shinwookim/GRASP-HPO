@@ -67,12 +67,13 @@ def train_xgboost(config, data, labels):
     dtrain = xgb.DMatrix(data, label=labels)
 
     params = {
-        "objective": "binary:logistic",
-        "eval_metric": "logloss",
+        "objective": "multi:softmax",
+        "eval_metric": "mlogloss",
+        'num_class': 10,
         "max_depth": config["max_depth"],
         "subsample": config["subsample"],
         "colsample_bytree": config["colsample_bytree"],
-        "n_estimators": config["n_estimators"],
+        #"n_estimators": config["n_estimators"],
         "reg_lambda": config["reg_lambda"],
         "seed": 42,
     }
@@ -80,15 +81,15 @@ def train_xgboost(config, data, labels):
     # Train XGBoost model
     evals = [(dtrain, "train")]
     bst = xgb.train(
-        params, dtrain, evals=evals, verbose_eval=False
+        params, dtrain, num_boost_round = config["n_estimators"], evals=evals, verbose_eval=False
     )
 
     # Predict
     preds = bst.predict(dtrain)
-    threshold = 0.5  # You can adjust this threshold as needed
-    binary_preds = [1 if p > threshold else 0 for p in preds]
+    #threshold = 0.5  # You can adjust this threshold as needed
+    #binary_preds = [1 if p > threshold else 0 for p in preds]
 
     # Calculate F1 score
-    f1 = f1_score(labels, binary_preds)
+    f1 = f1_score(labels, preds, average='weighted')
 
     return {"f1_score": f1}
