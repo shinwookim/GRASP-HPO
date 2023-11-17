@@ -8,8 +8,8 @@ from src.hpo.grasp.phase1grasp import Construction
 from src.hpo.grasp.phase2grasp import LocalSearch
 
 
-LOCAL_SEARCH_ITERATIONS = 100
-BUILDING_PHASE_ITERATIONS = 10
+LOCAL_SEARCH_ITERATIONS = 50
+BUILDING_PHASE_ITERATIONS = 20
 
 
 class GraspHpo(HPOStrategy):

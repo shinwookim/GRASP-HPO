@@ -6,6 +6,7 @@ from ray import tune
 from ray.tune.schedulers import ASHAScheduler
 from sklearn.metrics import f1_score
 import xgboost as xgb
+from sklearn.model_selection import train_test_split
 
 
 search_space = {
@@ -64,7 +65,9 @@ class Hyperband(HPOStrategy):
 
 # Define your XGBoost training function
 def train_xgboost(config, data, labels):
-    dtrain = xgb.DMatrix(data, label=labels)
+    x_train, x_test, y_train, y_test = train_test_split(data, labels, test_size=0.2, random_state=1)
+    dtrain = xgb.DMatrix(x_train, label=y_train)
+    dtest = xgb.DMatrix(x_test, label=y_test)
 
     params = {
         "objective": "multi:softmax",
@@ -79,17 +82,17 @@ def train_xgboost(config, data, labels):
     }
 
     # Train XGBoost model
-    evals = [(dtrain, "train")]
+    evals = [(dtrain, "train"),(dtest, "eval")]
     bst = xgb.train(
         params, dtrain, num_boost_round = config["n_estimators"], evals=evals, verbose_eval=False
     )
 
     # Predict
-    preds = bst.predict(dtrain)
+    preds = bst.predict(dtest)
     #threshold = 0.5  # You can adjust this threshold as needed
     #binary_preds = [1 if p > threshold else 0 for p in preds]
 
     # Calculate F1 score
-    f1 = f1_score(labels, preds, average='weighted')
+    f1 = f1_score(y_test, preds, average='weighted')
 
     return {"f1_score": f1}
