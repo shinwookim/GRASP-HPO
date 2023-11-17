@@ -21,9 +21,7 @@ class GraspHpo(HPOStrategy):
 
     def hyperparameter_optimization(self, data, labels, search_space):
         x_train, x_test, y_train, y_test = self.prepare_dataset(data, labels)
-
-        dtrain = xgb.DMatrix(x_train, label=y_train)
-        dtest = xgb.DMatrix(x_test, label=y_test) 
+        dtrain, dtest = self.format_dataset(x_train, x_test, y_train, y_test)
 
         best_intermediate_combinations = self.phase1.building_phase(dtrain, dtest, y_test, search_space)
 
@@ -32,6 +30,11 @@ class GraspHpo(HPOStrategy):
 
     def prepare_dataset(self, data, labels):
         return train_test_split(data, labels, test_size=0.2, random_state=1)
+    
+    def format_dataset(self, xtrain, xtest, ytrain, ytest):
+        dtrain = xgb.DMatrix(xtrain, label=ytrain)
+        dtest = xgb.DMatrix(xtest, label=ytest)
+        return dtrain, dtest
 
 
     #def evaluate_solution(self, params, x_train, x_test, y_train, y_test):
