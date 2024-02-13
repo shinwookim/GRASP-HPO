@@ -1,5 +1,5 @@
 import pandas as pd
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 
 
 def plot_final_metrics(data, save_path):
@@ -24,22 +24,18 @@ def plot_final_metrics(data, save_path):
     plt.xticks(rotation=0)
     plt.tight_layout()
 
-    plt.savefig(save_path+"/final_metrics.png", format='png')
-    df.to_csv(save_path+"/table.csv", index=False)
+    plt.savefig(save_path + "final_metrics.png", format='png')
 
 
-def plot_evolution_through_time(data, dataset_names, output_path):
-    for dataset_name in dataset_names:
-        plt.figure(figsize=(10, 6))
-        for item in data:
-            if item['input'] == dataset_name:
-                strategy, f1_scores, times = item["hpo_strategy"], item["evolution_through_time"][0], item["evolution_through_time"][1]
-                plt.plot(times, f1_scores, marker='o', label=f"{strategy}")
+if __name__ == '__main__':
+    # Load the data from the CSVs
+    data_1 = pd.read_csv("breast.csv")
+    data_2 = pd.read_csv("Digits.csv")
+    data_3 = pd.read_csv("ereno.csv")
+    data_4 = pd.read_csv("iris.csv")
+    data_5 = pd.read_csv("wine.csv")
 
-        plt.title(f'Evolution Through Time - {dataset_name}')
-        plt.xlabel('Time (seconds)')
-        plt.ylabel('F1 Score')
-        plt.legend()
-        plt.grid(True)
+    combined_data = pd.concat([data_1, data_2, data_3, data_4, data_5])
 
-        plt.savefig(f'{output_path}/{dataset_name}Evolution.png')
+    # Plot and save the metrics
+    plot_final_metrics(combined_data, "")
