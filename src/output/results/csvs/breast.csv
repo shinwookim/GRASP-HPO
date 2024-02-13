@@ -1,0 +1,6 @@
+input,hpo_strategy,f1_score,evaluation_time
+Breast Cancer,HyperOpt,94.2978,15.9852
+Breast Cancer,Hyperband,92.4920,14.4480
+Breast Cancer,GraspHpo,97.3269,4.3688
+Breast Cancer,BOHB,94.6812,57.2359
+Breast Cancer,Default HPs,96.4510,0.0658

@@ -1,4 +1,4 @@
-from sklearn.datasets import load_breast_cancer, load_digits, load_iris, load_wine
+from sklearn.datasets import load_breast_cancer, load_digits, load_iris, load_wine, load_diabetes
 
 from src.input.processor.ereno_processor import ErenoProcessor
 
