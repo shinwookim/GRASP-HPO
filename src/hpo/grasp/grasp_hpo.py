@@ -9,6 +9,7 @@ from src.hpo.grasp.phase2grasp import LocalSearch
 
 
 LOCAL_SEARCH_ITERATIONS = 1
+LOCAL_SEARCH_TIMELIMIT = 1
 BUILDING_PHASE_ITERATIONS = 1
 BUILDING_PHASE_TIMELIMIT = 20
 INTERMEDIATE_RESULTS_SIZE = 5
@@ -18,12 +19,13 @@ class GraspHpo(HPOStrategy):
 
     def __init__(self) -> None:
         self.phase1 = Construction(self.evaluate_solution, BUILDING_PHASE_ITERATIONS, INTERMEDIATE_RESULTS_SIZE, BUILDING_PHASE_TIMELIMIT)
-        self.phase2 = LocalSearch(self.evaluate_solution, LOCAL_SEARCH_ITERATIONS)
+        self.phase2 = LocalSearch(self.evaluate_solution, LOCAL_SEARCH_ITERATIONS, LOCAL_SEARCH_TIMELIMIT)
 
     def hyperparameter_optimization(self, x_train, x_test, y_train, y_test, search_space):
         start_time = time.time()
         best_intermediate_combinations, f1_scores_evolution, time_evolution = self.phase1.building_phase(x_train, x_test, y_train, y_test, search_space, start_time)
-        local_best_sol, local_best_score, f1_scores_evolution2, time_evolution2 = self.phase2.local_search(best_intermediate_combinations, x_train, x_test, y_train, y_test, search_space, start_time)
+        local_search_start_time = time.time()
+        local_best_sol, local_best_score, f1_scores_evolution2, time_evolution2 = self.phase2.local_search(best_intermediate_combinations, x_train, x_test, y_train, y_test, search_space, start_time, local_search_start_time)
         f1_scores_evolution.extend(f1_scores_evolution2)
         time_evolution.extend(time_evolution2)
 
