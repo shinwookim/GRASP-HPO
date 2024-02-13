@@ -1,21 +1,22 @@
-import numpy as np
-from ray.tune.integration.xgboost import TuneReportCheckpointCallback
-from sklearn.metrics import f1_score
-import xgboost
-from ray import tune
-from ray.tune.schedulers import ASHAScheduler
-from src.hpo.hpo_strategy import HPOStrategy
-from ray.train import RunConfig
-from ray.tune.search.hyperopt import HyperOptSearch
 import time
 
-config = {
-    "eval_metric": ["f1_score", "eval-f1_score"]
-}
+import numpy as np
+import sklearn.datasets
+import sklearn.metrics
+import xgboost
+from ray import tune
+from ray.train import RunConfig
+from ray.tune.integration.xgboost import TuneReportCheckpointCallback
+from ray.tune.search import ConcurrencyLimiter
+from ray.tune.search.hyperopt import HyperOptSearch
+from sklearn.metrics import f1_score
+
+from src.hpo.hpo_strategy import HPOStrategy
+
 
 class HyperOpt(HPOStrategy):
     def hyperparameter_optimization(self, x_train, x_test, y_train, y_test, search_space):
-        def evaluate_f1_score(predt: np.ndarray, dtrain: xgboost.DMatrix) -> tuple[str, float]:
+        def evaluate_f1_score(predt: np.ndarray, dtrain: xgboost.DMatrix) -> np.ndarray:
             """Compute the f1 score"""
             y = dtrain.get_label()
             if len(np.unique(y)) == 2:
@@ -24,7 +25,7 @@ class HyperOpt(HPOStrategy):
                 f1 = f1_score(y, binary_preds, average="weighted")
             else:
                 f1 = f1_score(y, predt, average="weighted")
-            return "f1_score", f1
+            return ("f1_score", f1)
 
         def train_xgboost(config: dict):
             train_set = xgboost.DMatrix(data=x_train, label=y_train)
@@ -58,17 +59,12 @@ class HyperOpt(HPOStrategy):
 
         # Define the HyperOpt search algorithm
         algo = HyperOptSearch(
-            space=tuner_search_space,
             metric="f1_score",
-            mode="max"
+            mode="max",
+            n_initial_points=4,
         )
 
-        # Define the ASHA scheduler for hyperparameter optimization
-        scheduler = ASHAScheduler(
-            max_t=100,  # Maximum number of training iterations
-            grace_period=20,  # Minimum number of iterations for each trial
-            reduction_factor=2,  # Factor by which trials are pruned
-        )
+        algo = ConcurrencyLimiter(algo, max_concurrent=2)
 
         # Config to reduce verbosity
         run_config = RunConfig(verbose=0)
@@ -77,8 +73,9 @@ class HyperOpt(HPOStrategy):
         tuner = tune.Tuner(
             train_xgboost,
             tune_config=tune.TuneConfig(
-                mode="max", metric="f1_score", scheduler=scheduler, num_samples=10, search_alg=algo
+                mode="max", metric="f1_score", num_samples=10, search_alg=algo
             ),
+            param_space=tuner_search_space,
             run_config=run_config,
         )
         results = tuner.fit()
