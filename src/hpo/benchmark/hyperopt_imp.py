@@ -52,6 +52,29 @@ class HyperOpt(HPOStrategy):
             "gamma": tune.uniform(search_space['gamma'][0], search_space['gamma'][1]),
         }
 
+        default_config = {
+            "max_depth": 3,
+            "learning_rate": 0.1,
+            "n_estimators": 100,
+            "silent": True,
+            "booster": 'gbtree',
+            "n_jobs": 1,
+            "nthread": None,
+            "gamma": 0,
+            "min_child_weight": 1,
+            "max_delta_step": 0,
+            "subsample": 1,
+            "colsample_bytree": 1,
+            "colsample_bylevel": 1,
+            "reg_alpha": 0,
+            "reg_lambda": 1,
+            "scale_pos_weight": 1,
+            "base_score": 0.5,
+            "random_state":0,
+            "seed": None,
+            "missing": None,
+        }
+
         # Change objective for multi-class
         if len(np.unique(y_train)) > 2:
             tuner_search_space["objective"] = "multi:softmax"
@@ -61,7 +84,7 @@ class HyperOpt(HPOStrategy):
         algo = HyperOptSearch(
             metric="f1_score",
             mode="max",
-            n_initial_points=4,
+            points_to_evaluate=[default_config],
         )
 
         algo = ConcurrencyLimiter(algo, max_concurrent=2)
