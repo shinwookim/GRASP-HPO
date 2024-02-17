@@ -10,7 +10,7 @@ from ray.tune.integration.xgboost import TuneReportCheckpointCallback
 from ray.tune.search import ConcurrencyLimiter
 from ray.tune.search.hyperopt import HyperOptSearch
 from sklearn.metrics import f1_score
-
+from ray.train import CheckpointConfig
 from src.hpo.hpo_strategy import HPOStrategy
 
 
@@ -38,6 +38,7 @@ class HyperOpt(HPOStrategy):
                 verbose_eval=False,
                 custom_metric=evaluate_f1_score,
                 callbacks=[TuneReportCheckpointCallback({"f1_score": "eval-f1_score"})],
+                num_boost_round=100,
             )
         start_time = time.time()
 
@@ -52,29 +53,6 @@ class HyperOpt(HPOStrategy):
             "gamma": tune.uniform(search_space['gamma'][0], search_space['gamma'][1]),
         }
 
-        default_config = {
-            "max_depth": 3,
-            "learning_rate": 0.1,
-            "n_estimators": 100,
-            "silent": True,
-            "booster": 'gbtree',
-            "n_jobs": 1,
-            "nthread": None,
-            "gamma": 0,
-            "min_child_weight": 1,
-            "max_delta_step": 0,
-            "subsample": 1,
-            "colsample_bytree": 1,
-            "colsample_bylevel": 1,
-            "reg_alpha": 0,
-            "reg_lambda": 1,
-            "scale_pos_weight": 1,
-            "base_score": 0.5,
-            "random_state":0,
-            "seed": None,
-            "missing": None,
-        }
-
         # Change objective for multi-class
         if len(np.unique(y_train)) > 2:
             tuner_search_space["objective"] = "multi:softmax"
@@ -83,8 +61,7 @@ class HyperOpt(HPOStrategy):
         # Define the HyperOpt search algorithm
         algo = HyperOptSearch(
             metric="f1_score",
-            mode="max",
-            points_to_evaluate=[default_config],
+            mode="max"
         )
 
         algo = ConcurrencyLimiter(algo, max_concurrent=2)
@@ -96,7 +73,7 @@ class HyperOpt(HPOStrategy):
         tuner = tune.Tuner(
             train_xgboost,
             tune_config=tune.TuneConfig(
-                mode="max", metric="f1_score", num_samples=100, search_alg=algo
+                mode="max", metric="f1_score", num_samples=10, search_alg=algo
             ),
             param_space=tuner_search_space,
             run_config=run_config,

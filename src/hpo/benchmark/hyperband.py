@@ -7,6 +7,7 @@ from ray.tune.schedulers import ASHAScheduler
 from ray.tune.integration.xgboost import TuneReportCheckpointCallback
 from src.hpo.hpo_strategy import HPOStrategy
 from ray.train import RunConfig
+from ray.train import CheckpointConfig
 import time
 
 
@@ -34,6 +35,7 @@ class Hyperband(HPOStrategy):
                 verbose_eval=False,
                 custom_metric=evaluate_f1_score,
                 callbacks=[TuneReportCheckpointCallback({"f1_score": "eval-f1_score"})],
+                num_boost_round=100,
             )
 
         start_time = time.time()
@@ -55,9 +57,8 @@ class Hyperband(HPOStrategy):
 
         # Define the ASHA scheduler for hyperparameter optimization
         scheduler = ASHAScheduler(
+            time_attr="training_iteration",  # Each iteration is a training step
             max_t=100,  # Maximum number of training iterations
-            grace_period=20,  # Minimum number of iterations for each trial
-            reduction_factor=2,  # Factor by which trials are pruned
         )
 
         # Config to reduce verbosity

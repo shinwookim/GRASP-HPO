@@ -4,7 +4,7 @@ from ray import tune
 from ray.tune.schedulers import HyperBandForBOHB
 from ray.tune.integration.xgboost import TuneReportCheckpointCallback
 from sklearn.metrics import f1_score
-
+from ray.train import CheckpointConfig
 from src.hpo.hpo_strategy import HPOStrategy
 from ray.train import RunConfig
 from ray.tune.search.bohb import TuneBOHB
@@ -63,8 +63,8 @@ class BOHB(HPOStrategy):
         scheduler = HyperBandForBOHB(
             time_attr="training_iteration",
             max_t=100,
-            reduction_factor=2,
-            stop_last_trials=True
+            reduction_factor=4,
+            stop_last_trials=True,
         )
 
         # Config to reduce verbosity
