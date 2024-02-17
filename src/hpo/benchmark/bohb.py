@@ -37,6 +37,7 @@ class BOHB(HPOStrategy):
                 verbose_eval=False,
                 custom_metric=evaluate_f1_score,
                 callbacks=[TuneReportCheckpointCallback({"f1_score": "eval-f1_score"})],
+                num_boost_round=100,
             )
 
         start_time = time.time()
