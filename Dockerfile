@@ -17,10 +17,21 @@ COPY src/hpo/grasp/*.py hpo/grasp/
 RUN mkdir hpo/benchmark/
 COPY src/hpo/benchmark/*.py hpo/benchmark/
 
+RUN mkdir input/
+COPY src/input/*.py input/
+
+RUN mkdir input/processor/
+COPY src/input/processor/*.py input/processor/
+
+RUN mkdir output/
+COPY src/output/*.py output/
+
+RUN mkdir output/results/
 
 RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install -r ../requirements.txt
 
+WORKDIR /usr/app/
 CMD ["python3", "-m", "src.main"]
 
 # docker build -t [owner/image-name:v] .
