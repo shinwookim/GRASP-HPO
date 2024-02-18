@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 from matplotlib import pyplot as plt
 
 
@@ -25,7 +26,9 @@ def plot_final_metrics(data, save_path):
     plt.tight_layout()
 
     plt.savefig(save_path+"/final_metrics.png", format='png')
+    # plt.savefig("src/"+save_path+"/final_metrics_test.png", format='png')
     df.to_csv(save_path+"/table.csv", index=False)
+    # df.to_csv("src/"+save_path+"/table_test.csv", index=False)
 
 
 def plot_evolution_through_time(data, dataset_names, output_path):
@@ -42,4 +45,7 @@ def plot_evolution_through_time(data, dataset_names, output_path):
         plt.legend()
         plt.grid(True)
 
+        #list all directories and files
+        # print("Before saving current figure")
+        # plt.savefig(f'src/{output_path}/{dataset_name}test.png')
         plt.savefig(f'{output_path}/{dataset_name}Evolution.png')

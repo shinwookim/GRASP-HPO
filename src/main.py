@@ -38,6 +38,7 @@ class Main:
     @staticmethod
     def main():
         dataset_names = ['Ereno', 'Breast Cancer', 'Digits', 'Iris', 'Wine']
+        # dataset_names = ['Breast Cancer', 'Digits', 'Iris', 'Wine']
         # dataset_names = ['Ereno']
         strategies = ['HyperOpt', 'Hyperband', 'GraspHpo', 'BOHB', 'Default HPs']
         # strategies = ['GraspHpo']

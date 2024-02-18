@@ -10,7 +10,7 @@ from ray.tune.integration.xgboost import TuneReportCheckpointCallback
 from ray.tune.search import ConcurrencyLimiter
 from ray.tune.search.hyperopt import HyperOptSearch
 from sklearn.metrics import f1_score
-
+from ray.train import CheckpointConfig
 from src.hpo.hpo_strategy import HPOStrategy
 
 
@@ -38,6 +38,7 @@ class HyperOpt(HPOStrategy):
                 verbose_eval=False,
                 custom_metric=evaluate_f1_score,
                 callbacks=[TuneReportCheckpointCallback({"f1_score": "eval-f1_score"})],
+                num_boost_round=100,
             )
         start_time = time.time()
 
@@ -60,8 +61,7 @@ class HyperOpt(HPOStrategy):
         # Define the HyperOpt search algorithm
         algo = HyperOptSearch(
             metric="f1_score",
-            mode="max",
-            n_initial_points=4,
+            mode="max"
         )
 
         algo = ConcurrencyLimiter(algo, max_concurrent=2)
@@ -81,4 +81,6 @@ class HyperOpt(HPOStrategy):
         results = tuner.fit()
         best_param = results.get_best_result().config
         best_result = results.get_best_result().metrics["f1_score"]
-        return best_param, best_result, ([best_result], [time.time() - start_time])
+        best_time_evo = results.get_best_result().metrics_dataframe["time_total_s"]
+        best_f1_evo = results.get_best_result().metrics_dataframe["f1_score"]
+        return best_param, best_result, (best_f1_evo.tolist(), best_time_evo.tolist())
