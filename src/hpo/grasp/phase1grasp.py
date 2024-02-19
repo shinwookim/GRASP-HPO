@@ -39,8 +39,8 @@ class Construction:
 
         f1_score = self.evaluate(DEFAULT_HYPERPARAMETERS, x_train, x_test, y_train, y_test)
         best_intermediate_combinations.put((f1_score, uuid.uuid4(), DEFAULT_HYPERPARAMETERS))
-        f1_scores_evolution = [0]
-        time_evolution = [0]
+        f1_scores_evolution = []
+        time_evolution = []
         for i in range(self.max_iter):
             if time.time() - start_time > self.timelimit:
                 break
@@ -61,7 +61,7 @@ class Construction:
 
             f1_score = self.evaluate(selected_hyperparameters, x_train, x_test, y_train, y_test)
 
-            if f1_score > f1_scores_evolution[-1]:
+            if f1_scores_evolution.__len__() == 0 or f1_score > f1_scores_evolution[-1]:
                 f1_scores_evolution.append(f1_score)
                 time_evolution.append(time.time() - start_time)
 

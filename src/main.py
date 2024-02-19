@@ -37,11 +37,13 @@ class Main:
 
     @staticmethod
     def main():
-        dataset_names = ['Ereno', 'Breast Cancer', 'Digits', 'Iris', 'Wine']
+        dataset_names = ['Breast Cancer', 'Digits', 'Iris', 'Wine', 'Ereno']
         # dataset_names = ['Breast Cancer', 'Digits', 'Iris', 'Wine']
-        # dataset_names = ['Ereno']
+        # dataset_names = ['Wine']
         strategies = ['HyperOpt', 'Hyperband', 'GraspHpo', 'BOHB', 'Default HPs']
         # strategies = ['GraspHpo']
+        # strategies = ['BOHB']
+        # strategies = ['Default HPs']
 
         data_final_metrics = []
         data_evolution = []
