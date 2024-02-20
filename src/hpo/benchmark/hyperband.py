@@ -76,6 +76,6 @@ class Hyperband(HPOStrategy):
         results = tuner.fit()
         best_param = results.get_best_result().config
         best_result = results.get_best_result().metrics["f1_score"]
-        best_time_evo = results.get_best_result().metrics_dataframe["time_total_s"]
-        best_f1_evo = results.get_best_result().metrics_dataframe["f1_score"]
+        best_time_evo = results.get_dataframe()["time_total_s"]
+        best_f1_evo = results.get_dataframe()["f1_score"]
         return best_param, best_result, (best_f1_evo.tolist(), best_time_evo.tolist())
