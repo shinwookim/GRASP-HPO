@@ -37,10 +37,10 @@ class Construction:
         # print('\nStarting building phase...')
         best_intermediate_combinations = PriorityQueue()
 
-        f1_scores, times = self.evaluate(DEFAULT_HYPERPARAMETERS, x_train, x_test, y_train, y_test, start_time)
-        best_intermediate_combinations.put((f1_scores[-1], uuid.uuid4(), DEFAULT_HYPERPARAMETERS))
-        f1_scores_evolution = f1_scores
-        time_evolution = times
+        f1_score = self.evaluate(DEFAULT_HYPERPARAMETERS, x_train, x_test, y_train, y_test)
+        best_intermediate_combinations.put((f1_score, uuid.uuid4(), DEFAULT_HYPERPARAMETERS))
+        f1_scores_evolution = [0]
+        time_evolution = [0]
         for i in range(self.max_iter):
             if time.time() - start_time > self.timelimit:
                 break
@@ -59,12 +59,13 @@ class Construction:
                 "gamma":  self.get_random_hyperparameter_value('gamma', search_space['gamma'])
             }
 
-            f1_scores, times = self.evaluate(selected_hyperparameters, x_train, x_test, y_train, y_test, start_time)
+            f1_score = self.evaluate(selected_hyperparameters, x_train, x_test, y_train, y_test)
 
-            f1_scores_evolution.extend(f1_scores)
-            time_evolution.extend(times)
+            if f1_score > f1_scores_evolution[-1]:
+                f1_scores_evolution.append(f1_score)
+                time_evolution.append(time.time() - start_time)
 
-            best_intermediate_combinations.put((f1_scores[-1], uuid.uuid4(), selected_hyperparameters))
+            best_intermediate_combinations.put((f1_score, uuid.uuid4(), selected_hyperparameters))
             if best_intermediate_combinations.qsize() > self.intermediate_results_size:
                 best_intermediate_combinations.get()
 
