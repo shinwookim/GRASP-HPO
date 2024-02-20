@@ -61,10 +61,11 @@ class HyperOpt(HPOStrategy):
         # Define the HyperOpt search algorithm
         algo = HyperOptSearch(
             metric="f1_score",
-            mode="max"
+            mode="max",
+            n_initial_points=2,
         )
 
-        algo = ConcurrencyLimiter(algo, max_concurrent=2)
+        algo = ConcurrencyLimiter(algo, max_concurrent=1)
 
         # Config to reduce verbosity
         run_config = RunConfig(verbose=0)
@@ -81,6 +82,11 @@ class HyperOpt(HPOStrategy):
         results = tuner.fit()
         best_param = results.get_best_result().config
         best_result = results.get_best_result().metrics["f1_score"]
-        best_time_evo = results.get_dataframe()["time_total_s"]
-        best_f1_evo = results.get_dataframe()["f1_score"]
-        return best_param, best_result, (best_f1_evo.tolist(), best_time_evo.tolist())
+        evo_time = []
+        for i in range(len(results.get_dataframe()["time_total_s"])):
+            if i == 0:
+                evo_time.append(results.get_dataframe()["time_total_s"][i])
+            else:
+                evo_time.append(results.get_dataframe()["time_total_s"][i] + evo_time[i-1])
+        f1_evo = results.get_dataframe()["f1_score"]
+        return best_param, best_result, (f1_evo.tolist(), evo_time)
