@@ -37,11 +37,13 @@ class Main:
 
     @staticmethod
     def main():
-        dataset_names = ['Ereno', 'Breast Cancer', 'Digits', 'Iris', 'Wine']
+        dataset_names = ['Breast Cancer', 'Digits', 'Iris', 'Wine', 'Ereno']
         # dataset_names = ['Breast Cancer', 'Digits', 'Iris', 'Wine']
         # dataset_names = ['Ereno']
         strategies = ['HyperOpt', 'Hyperband', 'GraspHpo', 'BOHB', 'Default HPs']
         # strategies = ['GraspHpo']
+        # strategies = ['BOHB']
+        # strategies = ['Default HPs']
 
         data_final_metrics = []
         data_evolution = []
@@ -50,6 +52,7 @@ class Main:
             dataset = DatasetFactory.load_dataset(dataset_name)
 
             for strategy in strategies:
+                print('Dataset: ', dataset_name, '\nStrategy: ', strategy)
                 f1_score, evaluation_time, evolution_through_time = Main.evaluate_hpo(strategy, dataset)
                 data_final_metrics.append({
                     "input": dataset_name,
