@@ -40,8 +40,8 @@ class Main:
         dataset_names = ['Breast Cancer', 'Digits', 'Iris', 'Wine', 'Ereno']
         # dataset_names = ['Breast Cancer', 'Digits', 'Iris', 'Wine']
         # dataset_names = ['Wine']
-        strategies = ['HyperOpt', 'Hyperband', 'GraspHpo', 'BOHB', 'Default HPs']
-        # strategies = ['GraspHpo']
+        # strategies = ['HyperOpt', 'Hyperband', 'GraspHpo', 'BOHB', 'Default HPs']
+        strategies = ['GraspHpo']
         # strategies = ['BOHB']
         # strategies = ['Default HPs']
 

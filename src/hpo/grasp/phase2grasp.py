@@ -65,7 +65,7 @@ class LocalSearch:
     def hill_climb(self, cur_sol: dict, x_train, x_test, y_train, y_test, phase_start_time):
 
         best_sol = cur_sol
-        best_score = self.evaluate(cur_sol, x_train, x_test, y_train, y_test)
+        best_score = self.evaluate(cur_sol, x_train, x_test, y_train, y_test, phase_start_time)
 
         for _ in range(self.max_iter):
 
@@ -73,7 +73,7 @@ class LocalSearch:
                 break
 
             neighbor_sol = self.generate_neighbor(cur_sol)
-            neighbor_score = self.evaluate(neighbor_sol, x_train, x_test, y_train, y_test)
+            neighbor_score = self.evaluate(neighbor_sol, x_train, x_test, y_train, y_test, phase_start_time)
 
             if neighbor_score > best_score:
                 best_sol = neighbor_sol

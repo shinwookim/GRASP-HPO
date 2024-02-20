@@ -24,16 +24,27 @@ class GraspHpo(HPOStrategy):
     def hyperparameter_optimization(self, x_train, x_test, y_train, y_test, search_space):
         start_time = time.time()
         best_intermediate_combinations, f1_scores_evolution, time_evolution = self.phase1.building_phase(x_train, x_test, y_train, y_test, search_space, start_time)
-        local_search_start_time = time.time()
-        local_best_sol, local_best_score, f1_scores_evolution2, time_evolution2 = self.phase2.local_search(best_intermediate_combinations, x_train, x_test, y_train, y_test, search_space, start_time, local_search_start_time)
-        f1_scores_evolution.extend(f1_scores_evolution2)
-        time_evolution.extend(time_evolution2)
+        # local_search_start_time = time.time()
+        # local_best_sol, local_best_score, f1_scores_evolution2, time_evolution2 = self.phase2.local_search(best_intermediate_combinations, x_train, x_test, y_train, y_test, search_space, start_time, local_search_start_time)
+        # f1_scores_evolution.extend(f1_scores_evolution2)
+        # time_evolution.extend(time_evolution2)
 
-        return local_best_sol, local_best_score, (f1_scores_evolution, time_evolution)
+        return best_intermediate_combinations.get(), f1_scores_evolution[0], (f1_scores_evolution, time_evolution)
 
     @staticmethod
-    def evaluate_solution(params, x_train, x_test, y_train, y_test):
-        def evaluate_f1_score(predt: np.ndarray, dtrain: xgboost.DMatrix) -> tuple[str, float]:
+    def evaluate_solution(params, x_train, x_test, y_train, y_test, start_time):
+        # Define the custom evaluation function inside evaluate_solution to record time of each iteration
+        class TimeEvaluationCallback(xgboost.callback.TrainingCallback):
+            def __init__(self):
+                super().__init__()
+                self.times = []
+
+            def after_iteration(self, model, epoch, evals_log):
+                current_time = time.time()
+                self.times.append(current_time - start_time)
+                return False  # Return False to continue training
+
+        def evaluate_f1_score(predt: np.ndarray, dtrain: xgboost.DMatrix) -> np.ndarray:
             """Compute the f1 score"""
             y = dtrain.get_label()
             if len(np.unique(y)) == 2:
@@ -53,6 +64,9 @@ class GraspHpo(HPOStrategy):
         test_set = xgboost.DMatrix(data=x_test, label=y_test)
 
         evals_result = {}
+
+        time_callback = TimeEvaluationCallback()
+
         xgboost.train(
             params,
             train_set,
@@ -60,7 +74,11 @@ class GraspHpo(HPOStrategy):
             verbose_eval=False,
             custom_metric=evaluate_f1_score,
             num_boost_round=100,
-            evals_result=evals_result
+            evals_result=evals_result,
+            callbacks=[time_callback]
         )
+        round_times = time_callback.times
 
-        return evals_result['eval']['f1_score'][-1]
+        f1_scores_per_round = evals_result['eval']['f1_score']
+
+        return [score * 10 for score in f1_scores_per_round], round_times
