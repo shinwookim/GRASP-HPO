@@ -24,12 +24,12 @@ class GraspHpo(HPOStrategy):
     def hyperparameter_optimization(self, x_train, x_test, y_train, y_test, search_space):
         start_time = time.time()
         best_intermediate_combinations, f1_scores_evolution, time_evolution = self.phase1.building_phase(x_train, x_test, y_train, y_test, search_space, start_time)
-        # local_search_start_time = time.time()
-        # local_best_sol, local_best_score, f1_scores_evolution2, time_evolution2 = self.phase2.local_search(best_intermediate_combinations, x_train, x_test, y_train, y_test, search_space, start_time, local_search_start_time)
-        # f1_scores_evolution.extend(f1_scores_evolution2)
-        # time_evolution.extend(time_evolution2)
+        local_search_start_time = time.time()
+        local_best_sol, local_best_score, f1_scores_evolution2, time_evolution2 = self.phase2.local_search(best_intermediate_combinations, x_train, x_test, y_train, y_test, search_space, start_time, local_search_start_time)
+        f1_scores_evolution.extend(f1_scores_evolution2)
+        time_evolution.extend(time_evolution2)
 
-        return best_intermediate_combinations.get(), f1_scores_evolution[0], (f1_scores_evolution, time_evolution)
+        return local_best_sol, local_best_score, (f1_scores_evolution, time_evolution)
 
     @staticmethod
     def evaluate_solution(params, x_train, x_test, y_train, y_test, start_time):
@@ -81,4 +81,4 @@ class GraspHpo(HPOStrategy):
 
         f1_scores_per_round = evals_result['eval']['f1_score']
 
-        return [score * 10 for score in f1_scores_per_round], round_times
+        return f1_scores_per_round, round_times
