@@ -164,5 +164,3 @@ poetry.lock
 
 # For Mac Users
 .DS_Store
-
-src/input/data
