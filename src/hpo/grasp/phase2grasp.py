@@ -29,7 +29,7 @@ class LocalSearch:
     def set_iter(self, num):
         if 0 < num < 512: self.max_iter = num
 
-    def local_search(self, intermed_best_sols: PriorityQueue, x_train, x_test, y_train, y_test, ranges: dict, start_time, phase_start_time, verbose=False):
+    def local_search(self, intermed_best_sols: PriorityQueue, train_set, validation_set, test_set, ranges: dict, start_time, phase_start_time, verbose=False):
         self.set_param(ranges)
 
         iter = 1
@@ -44,7 +44,7 @@ class LocalSearch:
             cur = intermed_best_sols.get()
 
             if verbose: print('LS iteration {}: \nBest solution after phase 1: {}\nCorresponding score: {}'.format(iter, cur[2], cur[0]))
-            tmp_score, tmp_sol = self.hill_climb(cur[2], x_train, x_test, y_train, y_test, phase_start_time, start_time, f1_scores_evolution, time_evolution)
+            tmp_score, tmp_sol = self.hill_climb(cur[2], train_set, validation_set, test_set, phase_start_time, start_time, f1_scores_evolution, time_evolution)
             if verbose: print('LS iteration {}: \nBest solution after phase 2: {}\nCorresponding score: {}\n'.format(iter, tmp_sol, tmp_score))
 
             if tmp_score > local_best_score:
@@ -55,12 +55,10 @@ class LocalSearch:
 
         return local_best_sol, local_best_score, f1_scores_evolution, time_evolution
 
-    def hill_climb(self, cur_sol: dict, x_train, x_test, y_train, y_test, phase_start_time, start_time, f1_scores_evolution, time_evolution):
+    def hill_climb(self, cur_sol: dict, train_set, validation_set, test_set, phase_start_time, start_time, f1_scores_evolution, time_evolution):
         best_sol = cur_sol
-        f1_scores_per_round, round_times = self.evaluate(cur_sol, x_train, x_test, y_train, y_test, start_time)
-        f1_scores_evolution.extend(f1_scores_per_round)
-        time_evolution.extend(round_times)
-        best_score = max(f1_scores_per_round)
+        f1_score, iteration_time = self.evaluate(cur_sol, train_set, validation_set, test_set, start_time)
+        best_score = f1_score
 
         for _ in range(self.max_iter):
 
@@ -68,10 +66,11 @@ class LocalSearch:
                 break
 
             neighbor_sol = self.generate_neighbor(cur_sol)
-            neighbor_scores, neighbor_times = self.evaluate(neighbor_sol, x_train, x_test, y_train, y_test, start_time)
-            f1_scores_evolution.extend(neighbor_scores)
-            time_evolution.extend(neighbor_times)
-            neighbor_score = max(neighbor_scores)
+
+            neighbor_score, neighbor_time = self.evaluate(neighbor_sol, train_set, validation_set, test_set, start_time)
+            f1_scores_evolution.append(neighbor_score)
+            time_evolution.append(neighbor_time)
+
             if neighbor_score > best_score:
                 best_sol = neighbor_sol
                 best_score = neighbor_score

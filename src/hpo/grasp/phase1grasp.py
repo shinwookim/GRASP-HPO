@@ -33,21 +33,19 @@ class Construction:
         else:
             return random.uniform(hyperparameter_range[0], hyperparameter_range[1])
 
-    def building_phase(self, x_train, x_test, y_train, y_test, search_space, start_time):
+    def building_phase(self, train_set, validation_set, test_set, search_space, start_time):
         # print('\nStarting building phase...')
         best_intermediate_combinations = PriorityQueue()
 
-        f1_scores, times = self.evaluate(DEFAULT_HYPERPARAMETERS, x_train, x_test, y_train, y_test, start_time)
-        best_intermediate_combinations.put((f1_scores[-1], uuid.uuid4(), DEFAULT_HYPERPARAMETERS))
-        f1_scores_evolution = f1_scores
-        time_evolution = times
+        f1_score, iteration_time = self.evaluate(DEFAULT_HYPERPARAMETERS, train_set, validation_set, test_set, start_time)
+        f1_scores_evolution = [f1_score]
+        time_evolution = [iteration_time]
+
+        best_intermediate_combinations.put((f1_score, uuid.uuid4(), DEFAULT_HYPERPARAMETERS))
+
         for i in range(self.max_iter):
             if time.time() - start_time > self.timelimit:
                 break
-
-            scaler = StandardScaler()
-            x_train = scaler.fit_transform(x_train)
-            x_test = scaler.transform(x_test)
 
             selected_hyperparameters = {
                 'max_depth': self.get_random_hyperparameter_value('max_depth', search_space['max_depth']),
@@ -59,12 +57,12 @@ class Construction:
                 "gamma":  self.get_random_hyperparameter_value('gamma', search_space['gamma'])
             }
 
-            f1_scores, times = self.evaluate(selected_hyperparameters, x_train, x_test, y_train, y_test, start_time)
+            f1_score, iteration_time = self.evaluate(selected_hyperparameters, train_set, validation_set, test_set, start_time)
 
-            f1_scores_evolution.extend(f1_scores)
-            time_evolution.extend(times)
+            f1_scores_evolution.append(f1_score)
+            time_evolution.append(iteration_time)
 
-            best_intermediate_combinations.put((f1_scores[-1], uuid.uuid4(), selected_hyperparameters))
+            best_intermediate_combinations.put((f1_score, uuid.uuid4(), selected_hyperparameters))
             if best_intermediate_combinations.qsize() > self.intermediate_results_size:
                 best_intermediate_combinations.get()
 

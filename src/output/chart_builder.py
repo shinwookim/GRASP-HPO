@@ -9,14 +9,14 @@ def plot_final_metrics(data, save_path):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
 
     f1_score_df = df.pivot(index="input", columns="hpo_strategy", values="f1_score")
-    f1_score_df.plot(kind="line", ax=ax1, linestyle='dashed')
+    f1_score_df.plot(kind="line", ax=ax1, marker='o', linestyle='dashed')
     ax1.set_ylabel("F1 Score")
     ax1.set_xlabel("Dataset")
     ax1.set_title("F1 Score Comparison: GRASP vs. Hyperband")
     ax1.legend(title="HPO Strategy results")
 
     time_df = df.pivot(index="input", columns="hpo_strategy", values="evaluation_time")
-    time_df.plot(kind="line", ax=ax2)
+    time_df.plot(kind="line", ax=ax2, marker='o')
     ax2.set_ylabel("Evaluation Time (s)")
     ax2.set_xlabel("Dataset")
     ax2.set_title("Evaluation Time Comparison: GRASP vs. Hyperband")
@@ -37,7 +37,7 @@ def plot_evolution_through_time(data, dataset_names, output_path):
         for item in data:
             if item['input'] == dataset_name:
                 strategy, f1_scores, times = item["hpo_strategy"], item["evolution_through_time"][0], item["evolution_through_time"][1]
-                plt.plot(times, f1_scores, label=f"{strategy}")
+                plt.plot(times, f1_scores, marker='o', label=f"{strategy}")
 
         plt.title(f'Evolution Through Time - {dataset_name}')
         plt.xlabel('Time (seconds)')
