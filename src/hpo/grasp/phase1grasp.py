@@ -42,8 +42,8 @@ class Construction:
         f1_scores_evolution = [0]
         time_evolution = [0]
         for i in range(self.max_iter):
-            if time.time() - start_time > self.timelimit:
-                break
+            # if time.time() - start_time > self.timelimit:
+            #     break
 
             scaler = StandardScaler()
             x_train = scaler.fit_transform(x_train)
@@ -61,9 +61,9 @@ class Construction:
 
             f1_score = self.evaluate(selected_hyperparameters, x_train, x_test, y_train, y_test)
 
-            if f1_score > f1_scores_evolution[-1]:
-                f1_scores_evolution.append(f1_score)
-                time_evolution.append(time.time() - start_time)
+
+            f1_scores_evolution.append(f1_score)
+            time_evolution.append(time.time() - start_time)
 
             best_intermediate_combinations.put((f1_score, uuid.uuid4(), selected_hyperparameters))
             if best_intermediate_combinations.qsize() > self.intermediate_results_size:

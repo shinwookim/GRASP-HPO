@@ -13,7 +13,7 @@ class Dataset:
 class ErenoProcessor:
     @staticmethod
     def load_data():
-        data_df = pd.read_csv("./input/data/hybridGoose.csv", sep=',')
+        data_df = pd.read_csv("src/input/data/hybridGoose.csv", sep=',')
 
         columns_to_drop = ["stDiff", "sqDiff", "gooseLengthDiff", "cbStatusDiff", "apduSizeDiff", "frameLengthDiff", "timestampDiff", "tDiff", "timeFromLastChange", "delay"]
         data = (data_df

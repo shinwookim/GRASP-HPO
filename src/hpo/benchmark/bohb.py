@@ -69,13 +69,13 @@ class BOHB(HPOStrategy):
         )
 
         # Config to reduce verbosity
-        run_config = RunConfig(verbose=0)
+        run_config = RunConfig(verbose=0, checkpoint_config=CheckpointConfig(num_to_keep=1, checkpoint_frequency=0, checkpoint_at_end=False))
 
         # Run the hyperparameter search
         tuner = tune.Tuner(
             train_xgboost,
             tune_config=tune.TuneConfig(
-                mode="max", metric="f1_score", scheduler=scheduler, num_samples=10, search_alg=bohb_search
+                mode="max", metric="f1_score", scheduler=scheduler, num_samples=100, search_alg=bohb_search
             ),
             run_config=run_config,
         )

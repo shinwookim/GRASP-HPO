@@ -68,13 +68,13 @@ class HyperOpt(HPOStrategy):
         algo = ConcurrencyLimiter(algo, max_concurrent=1)
 
         # Config to reduce verbosity
-        run_config = RunConfig(verbose=0)
+        run_config = RunConfig(verbose=0, checkpoint_config=CheckpointConfig(num_to_keep=1, checkpoint_frequency=0, checkpoint_at_end=False))
 
         # Run the hyperparameter search
         tuner = tune.Tuner(
             train_xgboost,
             tune_config=tune.TuneConfig(
-                mode="max", metric="f1_score", num_samples=10, search_alg=algo
+                mode="max", metric="f1_score", num_samples=100, search_alg=algo
             ),
             param_space=tuner_search_space,
             run_config=run_config,
@@ -90,3 +90,4 @@ class HyperOpt(HPOStrategy):
                 evo_time.append(results.get_dataframe()["time_total_s"][i] + evo_time[i-1])
         f1_evo = results.get_dataframe()["f1_score"]
         return best_param, best_result, (f1_evo.tolist(), evo_time)
+    

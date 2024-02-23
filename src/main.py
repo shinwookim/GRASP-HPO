@@ -1,5 +1,6 @@
 from sklearn.model_selection import train_test_split
 
+import os
 from src.input.dataset_factory import DatasetFactory
 from src.hpo.hpo_factory import HPOFactory
 import time
@@ -37,11 +38,13 @@ class Main:
 
     @staticmethod
     def main():
-        dataset_names = ['Ereno', 'Breast Cancer', 'Digits', 'Iris', 'Wine']
+        dataset_names = ['Breast Cancer', 'Digits', 'Iris', 'Wine', 'Ereno']
         # dataset_names = ['Breast Cancer', 'Digits', 'Iris', 'Wine']
         # dataset_names = ['Ereno']
         strategies = ['HyperOpt', 'Hyperband', 'GraspHpo', 'BOHB', 'Default HPs']
         # strategies = ['GraspHpo']
+        # strategies = ['BOHB']
+        # strategies = ['Default HPs']
 
         data_final_metrics = []
         data_evolution = []
@@ -50,6 +53,7 @@ class Main:
             dataset = DatasetFactory.load_dataset(dataset_name)
 
             for strategy in strategies:
+                print('Dataset: ', dataset_name, '\nStrategy: ', strategy)
                 f1_score, evaluation_time, evolution_through_time = Main.evaluate_hpo(strategy, dataset)
                 data_final_metrics.append({
                     "input": dataset_name,
@@ -62,8 +66,8 @@ class Main:
                     "hpo_strategy": strategy,
                     "evolution_through_time": evolution_through_time
                 })
-        plot_evolution_through_time(data_evolution, dataset_names, "output/results")
-        plot_final_metrics(data_final_metrics, "output/results")
+        plot_evolution_through_time(data_evolution, dataset_names, "src/output/results")
+        plot_final_metrics(data_final_metrics, "src/output/results")
 
 
 if __name__ == "__main__":
