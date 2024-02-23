@@ -75,7 +75,7 @@ class BOHB(HPOStrategy):
         tuner = tune.Tuner(
             train_xgboost,
             tune_config=tune.TuneConfig(
-                mode="max", metric="f1_score", scheduler=scheduler, num_samples=100, search_alg=bohb_search
+                mode="max", metric="f1_score", scheduler=scheduler, num_samples=200, search_alg=bohb_search
             ),
             run_config=run_config,
         )

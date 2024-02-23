@@ -68,7 +68,7 @@ class Hyperband(HPOStrategy):
         tuner = tune.Tuner(
             train_xgboost,
             tune_config=tune.TuneConfig(
-                mode="max", metric="f1_score", scheduler=scheduler, num_samples=100
+                mode="max", metric="f1_score", scheduler=scheduler, num_samples=200
             ),
             param_space=tuner_search_space,
             run_config=run_config,

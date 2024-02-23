@@ -74,7 +74,7 @@ class HyperOpt(HPOStrategy):
         tuner = tune.Tuner(
             train_xgboost,
             tune_config=tune.TuneConfig(
-                mode="max", metric="f1_score", num_samples=100, search_alg=algo
+                mode="max", metric="f1_score", num_samples=200, search_alg=algo
             ),
             param_space=tuner_search_space,
             run_config=run_config,
