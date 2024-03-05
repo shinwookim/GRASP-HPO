@@ -1,19 +1,8 @@
-import uuid
 import random
-from sklearn.preprocessing import StandardScaler
-from queue import PriorityQueue
 import time
-
-
-DEFAULT_HYPERPARAMETERS = {
-    'max_depth': 6,
-    'colsample_bytree': 1,
-    'reg_lambda': 1,
-    'subsample': 1,
-    "min_child_weight": 1,
-    "learning_rate": 0.3,
-    "gamma": 0
-}
+import uuid
+from queue import PriorityQueue
+from ..hyperparameters import get_hyperparameters
 
 
 class Construction:
@@ -33,21 +22,20 @@ class Construction:
         else:
             return random.uniform(hyperparameter_range[0], hyperparameter_range[1])
 
-    def building_phase(self, x_train, x_test, y_train, y_test, search_space, start_time):
+    def building_phase(self, x_train, y_train, x_val, y_val, start_time):
         # print('\nStarting building phase...')
         best_intermediate_combinations = PriorityQueue()
 
-        f1_scores, times = self.evaluate(DEFAULT_HYPERPARAMETERS, x_train, x_test, y_train, y_test, start_time)
-        best_intermediate_combinations.put((f1_scores[-1], uuid.uuid4(), DEFAULT_HYPERPARAMETERS))
-        f1_scores_evolution = f1_scores
-        time_evolution = times
+        default_hps = get_hyperparameters('default')
+        model, f1_score, spent_time = self.evaluate(default_hps, x_train, y_train, x_val, y_val, start_time)
+        f1_scores = [f1_score]
+        cumulative_time = [spent_time]
+
+        best_intermediate_combinations.put((f1_score, uuid.uuid4(), default_hps, model))
+        search_space = get_hyperparameters('search_space')
         for i in range(self.max_iter):
             if time.time() - start_time > self.timelimit:
                 break
-
-            scaler = StandardScaler()
-            x_train = scaler.fit_transform(x_train)
-            x_test = scaler.transform(x_test)
 
             selected_hyperparameters = {
                 'max_depth': self.get_random_hyperparameter_value('max_depth', search_space['max_depth']),
@@ -59,13 +47,13 @@ class Construction:
                 "gamma":  self.get_random_hyperparameter_value('gamma', search_space['gamma'])
             }
 
-            f1_scores, times = self.evaluate(selected_hyperparameters, x_train, x_test, y_train, y_test, start_time)
+            model, f1_score, spent_time = self.evaluate(selected_hyperparameters, x_train, y_train, x_val, y_val, start_time)
 
-            f1_scores_evolution.extend(f1_scores)
-            time_evolution.extend(times)
+            f1_scores.append(f1_score)
+            cumulative_time.append(spent_time)
 
-            best_intermediate_combinations.put((f1_scores[-1], uuid.uuid4(), selected_hyperparameters))
+            best_intermediate_combinations.put((f1_score, uuid.uuid4(), selected_hyperparameters, model))
             if best_intermediate_combinations.qsize() > self.intermediate_results_size:
                 best_intermediate_combinations.get()
 
-        return best_intermediate_combinations, f1_scores_evolution, time_evolution
+        return best_intermediate_combinations, f1_scores, cumulative_time
