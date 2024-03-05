@@ -4,17 +4,16 @@ from ray import tune
 from ray.tune.schedulers import HyperBandForBOHB
 from ray.tune.integration.xgboost import TuneReportCheckpointCallback
 from sklearn.metrics import f1_score
-from ray.train import CheckpointConfig
 from src.hpo.hpo_strategy import HPOStrategy
 from ray.train import RunConfig
 from ray.tune.search.bohb import TuneBOHB
 from ConfigSpace import ConfigurationSpace
 from ConfigSpace.hyperparameters import UniformFloatHyperparameter, UniformIntegerHyperparameter, CategoricalHyperparameter
-import time
+from ..hyperparameters import get_hyperparameters
 
 
 class BOHB(HPOStrategy):
-    def hyperparameter_optimization(self, x_train, x_test, y_train, y_test, search_space):
+    def hyperparameter_optimization(self, x_train, y_train, x_val, y_val):
         def evaluate_f1_score(predt: np.ndarray, dtrain: xgboost.DMatrix) -> tuple[str, float]:
             """Compute the f1 score"""
             y = dtrain.get_label()
@@ -28,21 +27,20 @@ class BOHB(HPOStrategy):
 
         def train_xgboost(config: dict):
             train_set = xgboost.DMatrix(data=x_train, label=y_train)
-            test_set = xgboost.DMatrix(data=x_test, label=y_test)
+            val_set = xgboost.DMatrix(data=x_val, label=y_val)
 
-            xgboost.train(
+            trained_model = xgboost.train(
                 config,
                 train_set,
-                evals=[(test_set, "eval")],
+                evals=[(val_set, "eval")],
                 verbose_eval=False,
                 custom_metric=evaluate_f1_score,
                 callbacks=[TuneReportCheckpointCallback({"f1_score": "eval-f1_score"})],
                 num_boost_round=100,
             )
+            return trained_model
 
-        start_time = time.time()
-
-        # Define the hyperparameter search space
+        search_space = get_hyperparameters('search_space')
         config_space = ConfigurationSpace()
         config_space.add_hyperparameter(UniformIntegerHyperparameter("max_depth", search_space['max_depth'][0], search_space['max_depth'][1]))
         config_space.add_hyperparameter(UniformFloatHyperparameter("subsample", search_space['subsample'][0], search_space['subsample'][1]))
@@ -52,10 +50,11 @@ class BOHB(HPOStrategy):
         config_space.add_hyperparameter(UniformFloatHyperparameter("learning_rate", search_space['learning_rate'][0], search_space['learning_rate'][1]))
         config_space.add_hyperparameter(UniformFloatHyperparameter("gamma", search_space['gamma'][0], search_space['gamma'][1]))
 
+        num_class = len(np.unique(y_train))
         # Change objective for multi-class
-        if len(np.unique(y_train)) > 2:
+        if num_class > 2:
             config_space.add_hyperparameter(CategoricalHyperparameter("objective", ["multi:softmax"]))
-            config_space.add_hyperparameter(CategoricalHyperparameter("num_class", [str(len(np.unique(y_train)))]))
+            config_space.add_hyperparameter(CategoricalHyperparameter("num_class", [str(num_class)]))
 
         # Define the BOHB search algorithm
         bohb_search = TuneBOHB(space=config_space, metric="f1_score", mode="max")
@@ -80,13 +79,16 @@ class BOHB(HPOStrategy):
             run_config=run_config,
         )
         results = tuner.fit()
-        best_param = results.get_best_result().config
-        best_result = results.get_best_result().metrics["f1_score"]
-        evo_time = []
-        for i in range(len(results.get_dataframe()["time_total_s"])):
-            if i == 0:
-                evo_time.append(results.get_dataframe()["time_total_s"][i])
-            else:
-                evo_time.append(results.get_dataframe()["time_total_s"][i] + evo_time[i-1])
-        f1_evo = results.get_dataframe()["f1_score"]
-        return best_param, best_result, (f1_evo.tolist(), evo_time)
+        best_params = results.get_best_result().config
+
+        # Extract F1 score evolution and cumulative time
+        df = results.get_dataframe()
+        f1_scores = df["f1_score"].tolist()
+        cumulative_time = df["time_total_s"].cumsum().tolist()
+
+        if num_class > 2:
+            best_params["objective"] = "multi:softmax"
+            best_params["num_class"] = num_class
+
+        final_model = train_xgboost(best_params)
+        return final_model, f1_scores, cumulative_time

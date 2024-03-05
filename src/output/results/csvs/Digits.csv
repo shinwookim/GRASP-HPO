@@ -1,6 +1,0 @@
-input,hpo_strategy,f1_score,evaluation_time
-Digits,HyperOpt,94.5246,18.6178
-Digits,Hyperband,93.7133,16.9976
-Digits,GraspHpo,98.2957,32.9670
-Digits,BOHB,94.0736,55.3843
-Digits,Default HPs,97.2195,0.3476

@@ -1,7 +1,7 @@
 import random
 from queue import PriorityQueue
 import time
-
+from ..hyperparameters import get_hyperparameters
 
 class LocalSearch:
 
@@ -29,13 +29,12 @@ class LocalSearch:
     def set_iter(self, num):
         if 0 < num < 512: self.max_iter = num
 
-    def local_search(self, intermed_best_sols: PriorityQueue, x_train, x_test, y_train, y_test, ranges: dict, start_time, phase_start_time, verbose=False):
+    def local_search(self, intermed_best_sols: PriorityQueue, x_train, y_train, x_val, y_val, start_time, f1_scores, cumulative_time, phase_start_time, verbose=False):
+        ranges = get_hyperparameters('search_space')
         self.set_param(ranges)
 
         iter = 1
-        local_best_sol, local_best_score = {}, 0
-        f1_scores_evolution = []
-        time_evolution = []
+        local_best_sol, local_best_score, local_best_model = {}, 0, None
 
         while not intermed_best_sols.empty():
             if time.time() - phase_start_time > self.timelimit:
@@ -44,40 +43,39 @@ class LocalSearch:
             cur = intermed_best_sols.get()
 
             if verbose: print('LS iteration {}: \nBest solution after phase 1: {}\nCorresponding score: {}'.format(iter, cur[2], cur[0]))
-            tmp_score, tmp_sol = self.hill_climb(cur[2], x_train, x_test, y_train, y_test, phase_start_time, start_time, f1_scores_evolution, time_evolution)
+            tmp_score, tmp_model, tmp_sol = self.hill_climb(cur[2], x_train, y_train, x_val, y_val, phase_start_time, start_time, f1_scores, cumulative_time)
             if verbose: print('LS iteration {}: \nBest solution after phase 2: {}\nCorresponding score: {}\n'.format(iter, tmp_sol, tmp_score))
 
             if tmp_score > local_best_score:
                 local_best_score = tmp_score
                 local_best_sol = tmp_sol
+                local_best_model = tmp_model
                 if verbose: print('After LS iteration {}: LS found neighbor solution w/ higher f-1 mean than phase 1'.format(iter, local_best_sol, local_best_score))
             iter += 1
 
-        return local_best_sol, local_best_score, f1_scores_evolution, time_evolution
+        return local_best_model
 
-    def hill_climb(self, cur_sol: dict, x_train, x_test, y_train, y_test, phase_start_time, start_time, f1_scores_evolution, time_evolution):
-        best_sol = cur_sol
-        f1_scores_per_round, round_times = self.evaluate(cur_sol, x_train, x_test, y_train, y_test, start_time)
-        f1_scores_evolution.extend(f1_scores_per_round)
-        time_evolution.extend(round_times)
-        best_score = max(f1_scores_per_round)
+    def hill_climb(self, current_hps: dict, x_train, y_train, x_val, y_val, phase_start_time, start_time, f1_scores, cumulative_time):
+        best_hps = current_hps
+        best_model, best_score, best_time = self.evaluate(current_hps, x_train, y_train, x_val, y_val, start_time)
 
         for _ in range(self.max_iter):
 
             if time.time() - phase_start_time > self.timelimit:
                 break
 
-            neighbor_sol = self.generate_neighbor(cur_sol)
-            neighbor_scores, neighbor_times = self.evaluate(neighbor_sol, x_train, x_test, y_train, y_test, start_time)
-            f1_scores_evolution.extend(neighbor_scores)
-            time_evolution.extend(neighbor_times)
-            neighbor_score = max(neighbor_scores)
-            if neighbor_score > best_score:
-                best_sol = neighbor_sol
-                best_score = neighbor_score
-            cur_sol = neighbor_sol
+            neighbor_hps = self.generate_neighbor(current_hps)
 
-        return best_score, best_sol
+            neighbor_model, neighbor_score, neighbor_time = self.evaluate(neighbor_hps, x_train, y_train, x_val, y_val, start_time)
+            f1_scores.append(neighbor_score)
+            cumulative_time.append(neighbor_time)
+
+            if neighbor_score > best_score:
+                best_hps = neighbor_hps
+                best_score = neighbor_score
+            current_hps = neighbor_hps
+
+        return best_score, best_model, best_hps
 
     # change all hp's of cur_solution slightly (by self.margin)
     # do not go over or under original HP bounds

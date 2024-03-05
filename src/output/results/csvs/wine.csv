@@ -1,6 +1,0 @@
-input,hpo_strategy,f1_score,evaluation_time
-Wine,HyperOpt,98.4429,17.3809
-Wine,Hyperband,99.6429,16.6579
-Wine,GraspHpo,99.4429,5.1858
-Wine,BOHB,99.6429,61.0813
-Wine,Default HPs,97.2146,0.0770

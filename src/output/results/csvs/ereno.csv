@@ -1,6 +1,0 @@
-input,hpo_strategy,f1_score,evaluation_time
-Ereno,HyperOpt,91.2404,28.5010
-Ereno,Hyperband,91.5026,15.0004
-Ereno,GraspHpo,93.6142,61.4380
-Ereno,BOHB,92.1538,57.2857
-Ereno,Default HPs,93.8535,0.7894

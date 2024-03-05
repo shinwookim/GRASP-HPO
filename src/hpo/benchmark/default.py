@@ -1,25 +1,14 @@
-from sklearn.metrics import f1_score
+import time
+
 import numpy as np
 import xgboost
+from sklearn.metrics import f1_score
 
 from src.hpo.hpo_strategy import HPOStrategy
-import time
 
 
 class Default(HPOStrategy):
-    def hyperparameter_optimization(self,  x_train, x_test, y_train, y_test, search_space):
-        start_time = time.time()
-
-        # Define the custom evaluation function inside evaluate_solution to record time of each iteration
-        class TimeEvaluationCallback(xgboost.callback.TrainingCallback):
-            def __init__(self):
-                super().__init__()
-                self.times = []
-
-            def after_iteration(self, model, epoch, evals_log):
-                current_time = time.time()
-                self.times.append(current_time - start_time)
-                return False  # Return False to continue training
+    def hyperparameter_optimization(self, x_train, y_train, x_val, y_val):
 
         def evaluate_f1_score(predt: np.ndarray, dtrain: xgboost.DMatrix) -> np.ndarray:
             """Compute the f1 score"""
@@ -33,31 +22,22 @@ class Default(HPOStrategy):
                                                                                                                average="weighted")
             return "f1_score", f1
 
+        train_set = xgboost.DMatrix(data=x_train, label=y_train)
+        val_set = xgboost.DMatrix(data=x_val, label=y_val)
+
         params = {}
         class_quantity = len(np.unique(y_train))
         if class_quantity > 2:
             params["objective"] = "multi:softmax"
             params["num_class"] = class_quantity
 
-        train_set = xgboost.DMatrix(data=x_train, label=y_train)
-        test_set = xgboost.DMatrix(data=x_test, label=y_test)
-
-        evals_result = {}
-
-        time_callback = TimeEvaluationCallback()
-
-        xgboost.train(
+        trained_model = xgboost.train(
             params,
             train_set,
-            evals=[(test_set, "eval")],
+            evals=[(val_set, "eval")],
             verbose_eval=False,
             custom_metric=evaluate_f1_score,
             num_boost_round=100,
-            evals_result=evals_result,
-            callbacks=[time_callback]
         )
-        round_times = time_callback.times
 
-        f1_scores_per_round = evals_result['eval']['f1_score']
-
-        return params, max(f1_scores_per_round), (f1_scores_per_round, round_times)
+        return trained_model, None, None
