@@ -4,6 +4,7 @@ from ray import tune
 from ray.train import RunConfig
 from ray.tune.integration.xgboost import TuneReportCheckpointCallback
 from ray.tune.schedulers import ASHAScheduler
+import ray
 from sklearn.metrics import f1_score
 
 from src.hpo.hpo_strategy import HPOStrategy
@@ -12,6 +13,9 @@ from ..hyperparameters import get_hyperparameters
 
 class Hyperband(HPOStrategy):
     def hyperparameter_optimization(self, x_train, y_train, x_val, y_val):
+        if not ray.is_initialized():
+            ray.init(log_to_driver=True, ignore_reinit_error=True)
+
         def evaluate_f1_score(predt: np.ndarray, dtrain: xgboost.DMatrix) -> tuple[str, float]:
             """Compute the f1 score"""
             y = dtrain.get_label()

@@ -1,13 +1,8 @@
 import pandas as pd
-from pathlib import Path
 
 from sklearn.preprocessing import LabelEncoder
 
-
-class Dataset:
-    def __init__(self, data, target) -> None:
-        self.data = data
-        self.target = target
+from src.input.processor.dataset import Dataset
 
 
 class ErenoProcessor:
