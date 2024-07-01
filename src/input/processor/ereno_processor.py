@@ -1,16 +1,10 @@
 import pandas as pd
 from pathlib import Path
-
+from dsobj import Dataset
 from sklearn.preprocessing import LabelEncoder
 
 
-class Dataset:
-    def __init__(self, data, target) -> None:
-        self.data = data
-        self.target = target
-
-
-class ErenoProcessor:
+class erenoProcessor:
     @staticmethod
     def load_data():
         data_df = pd.read_csv("./input/data/hybridGoose.csv", sep=',')
