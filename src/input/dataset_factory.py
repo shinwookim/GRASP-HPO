@@ -1,7 +1,7 @@
 from sklearn.datasets import load_breast_cancer, load_digits, load_iris, load_wine, load_diabetes
 
-from processor.ereno_processor import erenoProcessor
-from processor.canids_processor import canidsProcessor
+from src.input.processor.ereno_processor import erenoProcessor
+from src.input.processor.canids_processor import canidsProcessor
 
 
 class DatasetFactory:
@@ -18,6 +18,7 @@ class DatasetFactory:
         elif dataset_name.lower() == 'wine':
             return load_wine()
         elif dataset_name.lower() == 'canids':
-            return canidsProcessor.load_data()
+            processor = canidsProcessor()
+            return processor.load_data()
         else:
             raise ValueError("Invalid HPO strategy name")

@@ -1,4 +1,4 @@
-from sklearn.model_selection import train_test_split
+from dask_ml.model_selection import train_test_split
 
 from src.input.dataset_factory import DatasetFactory
 from src.hpo.hpo_factory import HPOFactory
@@ -11,8 +11,8 @@ from sklearn.metrics import f1_score
 class Main:
     @staticmethod
     def prepare_dataset(dataset):
-        x_temp, x_test, y_temp, y_test = train_test_split(dataset.data, dataset.target, test_size=0.2, random_state=1)
-        x_train, x_val, y_train, y_val = train_test_split(x_temp, y_temp, test_size=0.25, random_state=1)  # 0.25 x 0.8 = 0.2
+        x_temp, x_test, y_temp, y_test = train_test_split(dataset.data, dataset.target, test_size=0.2, random_state=1, convert_mixed_types=True)
+        x_train, x_val, y_train, y_val = train_test_split(x_temp, y_temp, test_size=0.25, random_state=1, convert_mixed_types=True)  # 0.25 x 0.8 = 0.2
         return x_train, y_train, x_val, y_val, x_test, y_test
 
     @staticmethod
@@ -43,10 +43,10 @@ class Main:
 
     @staticmethod
     def main():
-        dataset_names = ['Breast Cancer', 'Digits', 'Iris', 'Wine', 'Ereno']
-        # dataset_names = ['Breast Cancer']
-        strategies = ['HyperOpt', 'Hyperband', 'GraspHpo', 'BOHB', 'Default HPs']
-        # strategies = ['Hyperband']
+        # dataset_names = ['Breast Cancer', 'Digits', 'Iris', 'Wine', 'Ereno']
+        dataset_names = ['canids']
+        # strategies = ['HyperOpt', 'Hyperband', 'GraspHpo', 'BOHB', 'Default HPs']
+        strategies = ['Hyperopt']
 
         data_final_metrics = []
         data_evolution = []

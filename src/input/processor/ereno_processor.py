@@ -1,6 +1,6 @@
 import pandas as pd
 from pathlib import Path
-from dsobj import Dataset
+from src.input.processor.dsobj import Dataset
 from sklearn.preprocessing import LabelEncoder
 
 
