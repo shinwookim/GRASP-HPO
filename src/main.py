@@ -5,6 +5,7 @@ from src.hpo.hpo_factory import HPOFactory
 from src.output.chart_builder import plot_final_metrics, plot_evolution_through_time
 import numpy as np
 import xgboost
+import os
 from sklearn.metrics import f1_score
 
 
@@ -70,8 +71,10 @@ class Main:
                     "f1_scores": f1_scores,
                     "cumulative_time": cumulative_time
                 })
-        plot_evolution_through_time(data_evolution, dataset_names, "output/results")
-        plot_final_metrics(data_final_metrics, "output/results")
+        src_folder = os.path.dirname(os.path.abspath(__file__))
+        results_folder = os.path.join(src_folder, "output/results")
+        plot_evolution_through_time(data_evolution, dataset_names, results_folder)
+        plot_final_metrics(data_final_metrics, results_folder)
 
 
 if __name__ == "__main__":
