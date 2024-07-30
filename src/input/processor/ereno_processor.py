@@ -1,5 +1,6 @@
 import pandas as pd
 from pathlib import Path
+import os
 
 from sklearn.preprocessing import LabelEncoder
 
@@ -13,7 +14,9 @@ class Dataset:
 class ErenoProcessor:
     @staticmethod
     def load_data():
-        data_df = pd.read_csv("./input/data/hybridGoose.csv", sep=',')
+        src_folder = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        input_folder = os.path.join(src_folder, "data")
+        data_df = pd.read_csv(os.path.join(input_folder, "hybridGoose.csv"), sep=',')
 
         columns_to_drop = ["stDiff", "sqDiff", "gooseLengthDiff", "cbStatusDiff", "apduSizeDiff", "frameLengthDiff", "timestampDiff", "tDiff", "timeFromLastChange", "delay"]
         data = (data_df
