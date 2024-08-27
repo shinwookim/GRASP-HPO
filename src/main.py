@@ -1,11 +1,9 @@
+from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
 
-from src.input.dataset_factory import DatasetFactory
 from src.hpo.hpo_factory import HPOFactory
+from src.input.dataset_factory import DatasetFactory
 from src.output.chart_builder import plot_final_metrics, plot_evolution_through_time
-import numpy as np
-import xgboost
-from sklearn.metrics import f1_score
 
 
 class Main:
@@ -26,27 +24,16 @@ class Main:
 
     @staticmethod
     def get_final_model_results(trained_model, x_test, y_test):
-        test_set = xgboost.DMatrix(data=x_test, label=y_test)
-
-        y_pred_prob = trained_model.predict(test_set)
-
-        class_quantity = len(np.unique(y_test))
-        if class_quantity == 2:
-            threshold = 0.5
-            y_pred = (y_pred_prob > threshold).astype(int)
-        else:
-            y_pred = np.argmax(y_pred_prob, axis=1) if y_pred_prob.ndim > 1 else y_pred_prob
-
+        y_pred = trained_model.predict(x_test)
         final_f1_score = f1_score(y_test, y_pred, average='weighted')
-
         return final_f1_score
 
     @staticmethod
     def main():
         dataset_names = ['Breast Cancer', 'Digits', 'Iris', 'Wine', 'Ereno']
-        # dataset_names = ['Breast Cancer']
-        strategies = ['HyperOpt', 'Hyperband', 'GraspHpo', 'BOHB', 'Default HPs']
-        # strategies = ['Hyperband']
+        # strategies = ['HyperOpt', 'Hyperband', 'GraspHpo', 'BOHB', 'Default HPs']
+        # strategies = ['GraspHpo']
+        strategies = ['HyperOpt']
 
         data_final_metrics = []
         data_evolution = []

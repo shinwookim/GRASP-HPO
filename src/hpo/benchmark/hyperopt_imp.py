@@ -1,68 +1,48 @@
 import numpy as np
-import xgboost
 from ray import tune
 from ray.train import RunConfig
-from ray.tune.integration.xgboost import TuneReportCheckpointCallback
+from ray.tune.schedulers import ASHAScheduler
 from ray.tune.search import ConcurrencyLimiter
 from ray.tune.search.hyperopt import HyperOptSearch
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import f1_score
 
 from src.hpo.hpo_strategy import HPOStrategy
 from ..hyperparameters import get_hyperparameters
 
-
 class HyperOpt(HPOStrategy):
     def hyperparameter_optimization(self, x_train, y_train, x_val, y_val):
-        def evaluate_f1_score(predt: np.ndarray, dtrain: xgboost.DMatrix) -> tuple[str, float]:
-            """Compute the f1 score"""
-            y = dtrain.get_label()
-            if len(np.unique(y)) == 2:
-                threshold = 0.5
-                binary_preds = [1 if p > threshold else 0 for p in predt]
-                f1 = f1_score(y, binary_preds, average="weighted")
-            else:
-                f1 = f1_score(y, predt, average="weighted")
-            return "f1_score", f1
-
-        def train_xgboost(config: dict):
-            train_set = xgboost.DMatrix(data=x_train, label=y_train)
-            val_set = xgboost.DMatrix(data=x_val, label=y_val)
-
-            trained_model = xgboost.train(
-                config,
-                train_set,
-                evals=[(val_set, "eval")],
-                verbose_eval=False,
-                custom_metric=evaluate_f1_score,
-                callbacks=[TuneReportCheckpointCallback({"f1_score": "eval-f1_score"})],
-                num_boost_round=100,
+        def train_random_forest(config: dict):
+            model = RandomForestClassifier(
+                n_estimators=int(config.get("n_estimators", 100)),
+                max_depth=int(config.get("max_depth", None)),
+                min_samples_split=int(config.get("min_samples_split", 2)),
+                min_samples_leaf=int(config.get("min_samples_leaf", 1)),
+                max_features=config.get("max_features", "sqrt"),
+                random_state=42
             )
-
-            return trained_model
+            model.fit(x_train, y_train)
+            y_pred = model.predict(x_val)
+            f1 = f1_score(y_val, y_pred, average="weighted")
+            tune.report(f1_score=f1)  # Reporting the F1 score to Tune
+            return model
 
         # Define the hyperparameter search space
         search_space = get_hyperparameters('search_space')
         tuner_search_space = {
-            "max_depth": tune.randint(search_space['max_depth'][0], search_space['max_depth'][1]),
-            "subsample": tune.uniform(search_space['subsample'][0], search_space['subsample'][1]),
-            "colsample_bytree": tune.uniform(search_space['colsample_bytree'][0], search_space['colsample_bytree'][1]),
-            "reg_lambda": tune.uniform(search_space['reg_lambda'][0], search_space['reg_lambda'][1]),
-            "min_child_weight": tune.uniform(search_space['min_child_weight'][0], search_space['min_child_weight'][1]),
-            "learning_rate": tune.loguniform(search_space['learning_rate'][0], search_space['learning_rate'][1]),
-            "gamma": tune.uniform(search_space['gamma'][0], search_space['gamma'][1]),
+            "n_estimators": tune.randint(search_space['n_estimators'][0], search_space['n_estimators'][1]),
+            "max_depth": tune.randint(search_space['max_depth'][0], search_space['max_depth'][1] + 1),
+            "min_samples_split": tune.randint(search_space['min_samples_split'][0], search_space['min_samples_split'][1]),
+            "min_samples_leaf": tune.randint(search_space['min_samples_leaf'][0], search_space['min_samples_leaf'][1]),
+            "max_features": tune.choice(['sqrt', 'log2'])
         }
-
-        # Change objective for multi-class
-        num_class = len(np.unique(y_train))
-        if num_class > 2:
-            tuner_search_space["objective"] = "multi:softmax"
-            tuner_search_space["num_class"] = str(num_class)
 
         # Define the HyperOpt search algorithm
         algo = HyperOptSearch(
+            space=tuner_search_space,
             metric="f1_score",
             mode="max",
-            n_initial_points=2,
+            n_initial_points=2
         )
 
         algo = ConcurrencyLimiter(algo, max_concurrent=1)
@@ -72,7 +52,7 @@ class HyperOpt(HPOStrategy):
 
         # Run the hyperparameter search
         tuner = tune.Tuner(
-            train_xgboost,
+            train_random_forest,
             tune_config=tune.TuneConfig(
                 mode="max", metric="f1_score", num_samples=10, search_alg=algo
             ),
@@ -87,9 +67,5 @@ class HyperOpt(HPOStrategy):
         f1_scores = df["f1_score"].tolist()
         cumulative_time = df["time_total_s"].cumsum().tolist()
 
-        if num_class > 2:
-            best_params["objective"] = "multi:softmax"
-            best_params["num_class"] = num_class
-
-        final_model = train_xgboost(best_params)
+        final_model = train_random_forest(best_params)
         return final_model, f1_scores, cumulative_time

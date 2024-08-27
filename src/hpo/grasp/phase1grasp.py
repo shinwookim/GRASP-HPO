@@ -2,11 +2,13 @@ import random
 import time
 import uuid
 from queue import PriorityQueue
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import f1_score
 from ..hyperparameters import get_hyperparameters
 
 
 class Construction:
-    
+
     def __init__(self, evaluate, iterations_quantity, intermediate_results_size, timelimit) -> None:
         self.evaluate = evaluate
         self.max_iter = iterations_quantity
@@ -15,10 +17,10 @@ class Construction:
 
     @staticmethod
     def get_random_hyperparameter_value(hyperparameter, hyperparameter_range):
-        if hyperparameter in ['max_depth']:
+        if hyperparameter in ['max_depth', 'n_estimators', 'min_samples_split', 'min_samples_leaf']:
             return random.randint(hyperparameter_range[0], hyperparameter_range[1])
-        elif hyperparameter in ['learning_rate']:
-            return random.lognormvariate(hyperparameter_range[0], hyperparameter_range[1])
+        elif hyperparameter in ['max_features']:
+            return random.choice(['sqrt', 'log2'])
         else:
             return random.uniform(hyperparameter_range[0], hyperparameter_range[1])
 
@@ -38,16 +40,17 @@ class Construction:
                 break
 
             selected_hyperparameters = {
+                'n_estimators': self.get_random_hyperparameter_value('n_estimators', search_space['n_estimators']),
                 'max_depth': self.get_random_hyperparameter_value('max_depth', search_space['max_depth']),
-                'colsample_bytree': self.get_random_hyperparameter_value('colsample_bytree', search_space['colsample_bytree']),
-                'reg_lambda': self.get_random_hyperparameter_value('reg_lambda', search_space['reg_lambda']),
-                'subsample': self.get_random_hyperparameter_value('subsample', search_space['subsample']),
-                "min_child_weight":  self.get_random_hyperparameter_value('min_child_weight', search_space['min_child_weight']),
-                "learning_rate":  self.get_random_hyperparameter_value('learning_rate', search_space['learning_rate']),
-                "gamma":  self.get_random_hyperparameter_value('gamma', search_space['gamma'])
+                'min_samples_split': self.get_random_hyperparameter_value('min_samples_split',
+                                                                          search_space['min_samples_split']),
+                'min_samples_leaf': self.get_random_hyperparameter_value('min_samples_leaf',
+                                                                         search_space['min_samples_leaf']),
+                'max_features': self.get_random_hyperparameter_value('max_features', search_space['max_features'])
             }
 
-            model, f1_score, spent_time = self.evaluate(selected_hyperparameters, x_train, y_train, x_val, y_val, start_time)
+            model, f1_score, spent_time = self.evaluate(selected_hyperparameters, x_train, y_train, x_val, y_val,
+                                                        start_time)
 
             f1_scores.append(f1_score)
             cumulative_time.append(spent_time)
@@ -57,3 +60,4 @@ class Construction:
                 best_intermediate_combinations.get()
 
         return best_intermediate_combinations, f1_scores, cumulative_time
+

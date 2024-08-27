@@ -1,21 +1,19 @@
 HYPERPARAMETERS = {
     'default': {
+        'n_estimators': 100,
         'max_depth': 6,
-        'colsample_bytree': 1,
-        'reg_lambda': 1,
-        'subsample': 1,
-        "min_child_weight": 1,
-        "learning_rate": 0.3,
-        "gamma": 0
+        'min_samples_split': 2,
+        'min_samples_leaf': 1,
+        'max_features': 'sqrt',
+        'bootstrap': True,
     },
     'search_space': {
-        'max_depth': (3, 10),
-        'colsample_bytree': (0.5, 1),
-        'reg_lambda': (0.01, 1.0),
-        'subsample': (0.5, 1.0),
-        "min_child_weight": (1, 10),
-        "learning_rate": (1e-3, 0.3),
-        "gamma": (0, 1)
+        'n_estimators': (10, 200),
+        'max_depth': (3, 30),
+        'min_samples_split': (2, 20),
+        'min_samples_leaf': (1, 10),
+        'max_features': ['sqrt', 'log2', None],
+        'bootstrap': [True, False],
     }
 }
 
