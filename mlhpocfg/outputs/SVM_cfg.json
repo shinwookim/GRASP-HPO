@@ -1,0 +1,48 @@
+{
+    "ml": "SVM",
+    "hps": {
+        "penalty": {
+            "type": "categorical",
+            "range": [
+                "l1",
+                "l2"
+            ]
+        },
+        "loss": {
+            "type": "categorical",
+            "range": [
+                "hinge",
+                "squared_hinge"
+            ]
+        },
+        "dual": {
+            "type": "categorical",
+            "range": [
+                "auto",
+                true,
+                false
+            ]
+        },
+        "tol": {
+            "type": "float",
+            "range": [
+                0.0,
+                null
+            ]
+        },
+        "C": {
+            "type": "float",
+            "range": [
+                0.0,
+                null
+            ]
+        },
+        "multi_class": {
+            "type": "categorical",
+            "range": [
+                "ovr",
+                "crammer_singer"
+            ]
+        }
+    }
+}

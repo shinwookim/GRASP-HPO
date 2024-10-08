@@ -83,7 +83,10 @@ class LocalSearch:
 
         neighbor = cur_solution.copy()
         for hp in neighbor.keys():
-            if hp in ['penalty', 'loss', 'dual', 'multi_class', 'fit_intercept', 'class_weight', 'verbose', 'random_state']:
+            # if hp in ['penalty', 'loss', 'dual', 'multi_class', 'fit_intercept', 'class_weight', 'verbose', 'random_state']:
+            #     continue
+
+            if hp in not_accepted:
                 continue
 
             plus_minus = (self.hp_ranges[hp][1] - self.hp_ranges[hp][0]) * (self.margin / 2.0)

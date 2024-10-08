@@ -62,7 +62,7 @@ class Main:
 
     @staticmethod
     def main():
-        dataset_names = ['Canids']
+        dataset_names = ['Ereno', 'Breast Cancer', 'Iris', 'Wine', 'Digits']
         # dataset_names = ['Breast Cancer']
         strategies = ['HyperOptSVC', 'BOHBSVC', 'HyperbandSVC', 'GraspHpoSVC']
         # strategies = ['Hyperband']
