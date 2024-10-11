@@ -7,6 +7,7 @@ import numpy as np
 import xgboost
 import os
 from sklearn.metrics import f1_score
+from sklearn.preprocessing import StandardScaler
 
 
 class Main:
@@ -15,15 +16,32 @@ class Main:
         x_temp, x_test, y_temp, y_test = train_test_split(dataset.data, dataset.target, test_size=0.2, random_state=1)
         x_train, x_val, y_train, y_val = train_test_split(x_temp, y_temp, test_size=0.25, random_state=1)  # 0.25 x 0.8 = 0.2
         return x_train, y_train, x_val, y_val, x_test, y_test
+    
+    def prepare_dataset_svc(dataset):
+        dataset.data = StandardScaler().fit_transform(dataset.data)
+        x_temp, x_test, y_temp, y_test = train_test_split(dataset.data, dataset.target, test_size=0.2, random_state=1)
+        x_train, x_val, y_train, y_val = train_test_split(x_temp, y_temp, test_size=0.25, random_state=1)
+        return x_train, y_train, x_val, y_val, x_test, y_test
 
     @staticmethod
     def evaluate_hpo(strategy_name, dataset):
-        x_train, y_train, x_val, y_val, x_test, y_test = Main.prepare_dataset(dataset)
+        if "SVC" in strategy_name:
+            x_train, y_train, x_val, y_val, x_test, y_test = Main.prepare_dataset_svc(dataset)
+        else:
+            x_train, y_train, x_val, y_val, x_test, y_test = Main.prepare_dataset(dataset)
         hpo = HPOFactory.create_hpo_strategy(strategy_name)
         best_model, f1_scores_cumulative, cumulative_time = hpo.hyperparameter_optimization(x_train, y_train, x_val, y_val)
 
-        final_score = Main.get_final_model_results(best_model, x_test, y_test)
+        if "SVC" in strategy_name:
+            final_score = Main.get_final_model_results_svc(best_model, x_test, y_test)
+        else:
+            final_score = Main.get_final_model_results(best_model, x_test, y_test)
         return final_score, f1_scores_cumulative, cumulative_time
+    
+    def get_final_model_results_svc(trained_model, x_test, y_test):
+        y_pred = trained_model.predict(x_test)
+        f1 = f1_score(y_test, y_pred, average='weighted')
+        return f1
 
     @staticmethod
     def get_final_model_results(trained_model, x_test, y_test):
@@ -44,9 +62,9 @@ class Main:
 
     @staticmethod
     def main():
-        dataset_names = ['Breast Cancer', 'Digits', 'Iris', 'Wine', 'Ereno']
+        dataset_names = ['Ereno', 'Breast Cancer', 'Iris', 'Wine', 'Digits']
         # dataset_names = ['Breast Cancer']
-        strategies = ['HyperOpt', 'Hyperband', 'GraspHpo', 'BOHB', 'Default HPs']
+        strategies = ['HyperOptSVC', 'BOHBSVC', 'HyperbandSVC', 'GraspHpoSVC']
         # strategies = ['Hyperband']
 
         data_final_metrics = []

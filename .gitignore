@@ -166,3 +166,5 @@ poetry.lock
 .DS_Store
 
 src/input/data/*
+
+CAN_IDS.py
