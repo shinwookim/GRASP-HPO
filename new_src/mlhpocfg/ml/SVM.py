@@ -19,26 +19,28 @@ class SVM():
             },
             "tol": {
                 "type": "float",
-                "range": [0.0, None]
+                "range": [0.0, 1e3]
             },
             "C": {
                 "type": "float",
-                "range": [0.0, None]
+                "range": [0.0, 1e3]
             },
             "multi_class": {
                 "type": "categorical",
                 "range": ["ovr", "crammer_singer"]
             },
+            
         }
         self.model = None
     
     def get_hps(self):
         return self.hp
 
-    def train(self, X, y, hps):
-        self.model = LinearSVC(**hps)
-        self.model.fit(X, y)
-        return self.f1_score(y, self.model.predict(X))
+    def train(self, x_train, y_train, x_test, y_test, config):
+        self.model = LinearSVC(**config)
+        self.model.fit(x_train, y_train)
+        y_pred = self.model.predict(x_test)
+        return f1_score(y_test, y_pred, average='weighted')
 
     def predict(self, X):
         return self.model.predict(X)

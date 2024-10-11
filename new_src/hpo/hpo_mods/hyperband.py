@@ -4,7 +4,7 @@ from ray.train import RunConfig
 from ray.tune.integration.xgboost import TuneReportCheckpointCallback
 from ray.tune.schedulers import ASHAScheduler
 
-class Hyperband():
+class hyperband():
     def __init__(self):
         self.hps = {}
         self.results = None
@@ -16,6 +16,7 @@ class Hyperband():
         self.x_val = None
         self.y_val = None
         self.ml = None
+        self.name = "hyperband"
         
     def set_hps(self, hps):
         '''
@@ -46,6 +47,9 @@ class Hyperband():
         self.ml = ml
         
     def hyperparameter_optimization(self, num_samples=10):
+        def train_model(config: dict):
+            f1 = self.ml.train(self.x_train, self.y_train, self.x_val, self.y_val, config)
+            return {"f1_score": f1}
         tuner_search_space = self.hps
         
         scheduler = ASHAScheduler(
@@ -56,7 +60,7 @@ class Hyperband():
         run_config = RunConfig(verbose=0)
         
         tuner = tune.Tuner(
-            self.ml.train,
+            train_model,
             tune_config=tune.TuneConfig(
                 mode="max", metric="f1_score", scheduler=scheduler, num_samples=num_samples
             ),

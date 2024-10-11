@@ -1,5 +1,5 @@
-import ml
-import hpo.hpo_mods as hpo
+from . import ml
+from ..hpo import hpo_mods as hpo
 import json
 import os
 import sys
@@ -58,8 +58,9 @@ class MLConfig():
     
     def ml_import(self, ml_name):
         if self.ml_search(ml_name):
-            module = importlib.import_module('ml.' + ml_name)
-            obj_class = getattr(module, ml_name)
+            #create class object dynamically, module is already imported
+            obj_module = getattr(ml, ml_name)
+            obj_class = getattr(obj_module, ml_name)
             obj = obj_class()
             self.set_ml(obj)
             self.set_hps(obj.get_hps())
@@ -73,7 +74,6 @@ class MLConfig():
         {
             "ml": "ml_name",
             "whitelist": ["hp1", "hp2", "hp3"]
-            "blacklist": ["hp4", "hp5", "hp6"]
             "hpo": {
                 "hpo_name": ["hpo1", "hpo2", "hpo3"],
                 "iterations": 100
@@ -83,20 +83,14 @@ class MLConfig():
         #open json file
         with open(filename, 'r') as f:
             data = json.load(f)
-            whitelist = data['whitelist']
-            blacklist = data['blacklist']
-            #import ml
             self.ml_import(data['ml'])
-            #if whitelist is empty, keep all hps
-            if not whitelist:
-                whitelist = self.hps.keys()
-            #if blacklist is empty, keep all hps
-            if not blacklist:
-                blacklist = []
-            #filter hps
-            self.hps = {k: v for k, v in self.hps.items() if k in whitelist}
-            self.hps = {k: v for k, v in self.hps.items() if k not in blacklist}
-            #check if hpo is defined
+            #check if whitelist and blacklist are defined
+            whitelist = data['whitelist'] if 'whitelist' in data else []
+            #get hyperparameters
+            hps = self.ml.get_hps()
+            #filter hyperparameters
+            hps = {k: v for k, v in hps.items() if k in whitelist}
+            self.set_hps(hps)
             if 'hpo' in data:
                 self.set_hpocfg(data['hpo'])
             else:

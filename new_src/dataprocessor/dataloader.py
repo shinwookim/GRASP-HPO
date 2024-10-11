@@ -4,6 +4,8 @@ import pathlib
 import json
 import sys
 
+from sklearn.preprocessing import LabelEncoder
+
 class Dataload():
     def __init__(self):
         self.data = None
@@ -29,8 +31,11 @@ class Dataload():
             raise Exception('File extension not supported')
     
     def split_data(self, training_size, testing_size, validation_size):
-        if training_size + testing_size + validation_size != 1:
-            raise Exception('Training, testing and validation sizes should sum to 1')
+        sum = training_size + testing_size + validation_size
+        #account for floating point errors
+        sum = round(sum, 10)
+        if sum != 1:
+            raise Exception('Split sizes do not add up to 1')
         self.training_data = self.data.sample(frac=training_size)
         self.testing_data = self.data.drop(self.training_data.index).sample(frac=testing_size)
         self.validation_data = self.data.drop(self.training_data.index).drop(self.testing_data.index)
@@ -41,19 +46,18 @@ class Dataload():
         self.validation_data.to_csv(output_dir + 'validation_data.csv')
 
     def clean_data(self):
-        self.data = self.data.dropna()
-        self.data = self.data.drop_duplicates()
-        self.data = self.data.reset_index(drop=True)
+        self.data = self.data.dropna(axis=1)
 
     def set_label_column(self, column_name):
-        self.data['label'] = self.data[column_name]
+        label_encoder = LabelEncoder()
+        self.data[column_name] = label_encoder.fit_transform(self.data[column_name])
+        self.data["label"] = self.data[column_name]
         self.data = self.data.drop(columns=[column_name])
 
-    def load_data_config(self, filename):
+    def load_data_config(self, filename, data_path):
         '''
         Reads a json file with the following structure:
         {
-            "data_path": "path/to/data",
             "training_size": 0.7,
             "testing_size": 0.2,
             "validation_size": 0.1,
@@ -68,21 +72,23 @@ class Dataload():
         '''
         with open(filename, 'r') as f:
             data = json.load(f)
-            self.load_data(data['data_path'])
-            self.split_data(data['training_size'], data['testing_size'], data['validation_size'])
-            self.clean_data()
+            self.load_data(data_path)
             self.set_label_column(data['label_column'])
             self.data = self.data.drop(columns=data['columns_to_drop'])
-            for column, dtype in data['column_types'].items():
-                self.data[column] = self.data[column].astype(dtype)
-            #find directory of this file and export to ./outputs
+            if 'column_types' in data:
+                for column, dtype in data['column_types'].items():
+                    self.data[column] = self.data[column].astype(dtype)
+            #coerce to numeric
+            self.data = self.data.apply(pd.to_numeric, errors='coerce')
+            self.clean_data()
+            self.split_data(data['training_size'], data['testing_size'], data['validation_size'])
             directory = os.path.dirname(os.path.realpath(__file__))
             self.export_data(directory + '/outputs/')
 
 
 if __name__ == '__main__':
-    #load json from arguments
-    data_config = sys.argv[1]
+    if len(sys.argv) < 3:
+        print('Usage: python dataloader.py config_file data_file')
+        sys.exit(1)
     dataload = Dataload()
-    dataload.load_data_config(data_config)
-    print(dataload.data.head())
+    dataload.load_data_config(sys.argv[1], sys.argv[2])

@@ -1,8 +1,9 @@
-import hpo_mods
+from . import hpo_mods
 import json
 import pandas
 import os
-import mlhpocfg
+import sys
+from ..mlhpocfg import ml
 import importlib
 from pkgutil import iter_modules
 
@@ -47,8 +48,8 @@ class loaderHPO():
     
     def load_hpo(self, hpo_name):
         if self.hpo_search(hpo_name):
-            module = importlib.import_module('hpo.hpo_mods.' + hpo_name)
-            obj_class = getattr(module, hpo_name)
+            obj_module = getattr(hpo_mods, hpo_name)
+            obj_class = getattr(obj_module, hpo_name)
             obj = obj_class()
             self.add_hpo(obj)
         else:
@@ -68,8 +69,8 @@ class loaderHPO():
     
     def ml_import(self, ml_name):
         if self.ml_search(ml_name):
-            module = importlib.import_module('ml.' + ml_name)
-            obj_class = getattr(module, ml_name)
+            obj_module = getattr(ml, ml_name)
+            obj_class = getattr(obj_module, ml_name)
             obj = obj_class()
             self.set_ml(obj)
             return True
@@ -88,31 +89,36 @@ class loaderHPO():
     def run_hpo(self):
         for hpo in self.hpo:
             results = hpo.hyperparameter_optimization(self.num_samples)
-            best_params = results.best_params
-            best_scores = results.best_scores
-            time = results.time
+            best_params = results[0]
+            best_scores = results[1]
+            time = results[2]
         
-            self.results[hpo] = {
+            self.results[hpo.name] = {
                 "best_params": best_params,
                 "best_scores": best_scores,
                 "time": time
             }
         
-    def export_results(self, output_dir):
+    def export_results(self):
         filename = 'results.json'
-        if os.path.exists(output_dir + filename):
+        directory = os.path.dirname(os.path.realpath(__file__))
+        if os.path.exists(directory + '/outputs/' + filename):
             print('File already exists')
             raise Exception('File already exists')
         else:
-            with open(output_dir + filename, 'w+') as f:
+            with open(directory + '/outputs/' + filename, 'w+') as f:
                 f.write(json.dumps(self.results, indent=4))
                 
                 
 if __name__ == '__main__':
-    hpo = loaderHPO()
-    hpo.load_config('SVM_cfg.json')
-    hpo.load_train('train.csv')
-    hpo.load_test('test.csv')
-    hpo.load_val('val.csv')
-    hpo.run_hpo()
-    hpo.export_results('results/')
+    if len(sys.argv) < 5:
+        print('Usage: python hpoloader.py config_file train_file test_file val_file')
+        sys.exit(1)
+    hpoload = loaderHPO()
+    hpoload.load_train(sys.argv[2])
+    hpoload.load_test(sys.argv[3])
+    hpoload.load_val(sys.argv[4])
+    hpoload.load_config(sys.argv[1])
+    hpoload.run_hpo()
+    hpoload.export_results()
+    
