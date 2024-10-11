@@ -38,6 +38,7 @@ class SVM():
     def train(self, X, y, hps):
         self.model = LinearSVC(**hps)
         self.model.fit(X, y)
+        return self.f1_score(y, self.model.predict(X))
 
     def predict(self, X):
         return self.model.predict(X)

@@ -1,4 +1,5 @@
 import ml
+import hpo.hpo_mods as hpo
 import json
 import os
 import sys
@@ -9,12 +10,19 @@ class MLConfig():
     def __init__(self):
         self.ml = None
         self.hps = {}
+        self.hpocfg = {}
     
     def set_ml(self, ml):
         self.ml = ml
 
     def set_hps(self, hps):
         self.hps = hps
+
+    def set_hpocfg(self, hpocfg):
+        self.hpocfg = hpocfg
+    
+    def get_hpocfg(self):
+        return self.hpocfg
 
     def get_ml(self):
         return self.ml
@@ -23,7 +31,7 @@ class MLConfig():
         return self.hps
     
     def export_config(self):
-        return json.dumps({'ml': self.ml.name, 'hps': self.hps}, indent=4)
+        return json.dumps({'ml': self.ml.name, 'hps': self.hps, 'hpo': self.hpocfg}, indent=4)
     
     def export_file(self, output_dir):
         #set filename
@@ -66,6 +74,10 @@ class MLConfig():
             "ml": "ml_name",
             "whitelist": ["hp1", "hp2", "hp3"]
             "blacklist": ["hp4", "hp5", "hp6"]
+            "hpo": {
+                "hpo_name": ["hpo1", "hpo2", "hpo3"],
+                "iterations": 100
+            }
         }
         '''
         #open json file
@@ -84,6 +96,16 @@ class MLConfig():
             #filter hps
             self.hps = {k: v for k, v in self.hps.items() if k in whitelist}
             self.hps = {k: v for k, v in self.hps.items() if k not in blacklist}
+            #check if hpo is defined
+            if 'hpo' in data:
+                self.set_hpocfg(data['hpo'])
+            else:
+                #if not, look through the hpo folder and get the number of modules
+                hpo_list = []
+                for importer, modname, ispkg in iter_modules(hpo.__path__):
+                    hpo_list.append(modname)
+                self.set_hpocfg({'hpo_name': hpo_list, 'iterations': 100})
+
             #find directory of this file
             directory = os.path.dirname(os.path.realpath(__file__))
             #export config
@@ -91,7 +113,13 @@ class MLConfig():
 
 
 if __name__ == '__main__':
-    #load config from arguments
-    config = MLConfig()
-    config.read_input_config(sys.argv[1])
-    print(config.get_ml())
+    #check if input file is provided
+    if len(sys.argv) < 2:
+        print('Usage: python cfg.py input_file')
+        sys.exit(1)
+    #create object
+    mlcfg = MLConfig()
+    #read input file
+    mlcfg.read_input_config(sys.argv[1])
+    #print output
+    print(mlcfg.export_config())
