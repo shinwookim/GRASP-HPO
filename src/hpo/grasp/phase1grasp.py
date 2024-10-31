@@ -14,13 +14,7 @@ class Construction:
         self.timelimit = timelimit
 
     @staticmethod
-    def get_random_hyperparameter_value(hyperparameter, hyperparameter_range):
-        if hyperparameter in ['max_depth']:
-            return random.randint(hyperparameter_range[0], hyperparameter_range[1])
-        elif hyperparameter in ['learning_rate']:
-            return random.lognormvariate(hyperparameter_range[0], hyperparameter_range[1])
-        else:
-            return random.uniform(hyperparameter_range[0], hyperparameter_range[1])
+    r
 
     def building_phase(self, x_train, y_train, x_val, y_val, start_time):
         # print('\nStarting building phase...')

@@ -2,6 +2,7 @@ import pandas as pd
 import os
 import pathlib
 import json
+import time
 import sys
 
 from sklearn.preprocessing import LabelEncoder
@@ -41,9 +42,9 @@ class Dataload():
         self.validation_data = self.data.drop(self.training_data.index).drop(self.testing_data.index)
 
     def export_data(self, output_dir):
-        self.training_data.to_csv(output_dir + 'training_data.csv')
-        self.testing_data.to_csv(output_dir + 'testing_data.csv')
-        self.validation_data.to_csv(output_dir + 'validation_data.csv')
+        self.training_data.to_csv(output_dir + 'training_data_' + str(time.time()) + '.csv')
+        self.testing_data.to_csv(output_dir + 'testing_data_' + str(time.time()) + '.csv')
+        self.validation_data.to_csv(output_dir + 'validation_data_' + str(time.time()) + '.csv')
 
     def clean_data(self):
         self.data = self.data.dropna(axis=1)
