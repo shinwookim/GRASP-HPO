@@ -1,1 +1,1 @@
-import new_src.mlhpocfg.cfg
+import new_src.mlhpocfg.hpocfg
