@@ -1,1 +1,1 @@
-from . import hpoloader
+import new_src.hpo.hpoloader

@@ -1,1 +1,1 @@
-from . import cfg
+import new_src.mlhpocfg.cfg
