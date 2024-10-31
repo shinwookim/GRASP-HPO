@@ -3,6 +3,7 @@ from ..hpo import hpo_mods as hpo
 import json
 import os
 import sys
+import time
 import importlib
 from pkgutil import iter_modules
 
@@ -35,7 +36,7 @@ class MLConfig():
     
     def export_file(self, output_dir):
         #set filename
-        filename = self.ml.name + '_cfg.json'
+        filename = self.ml.name + '_' + str(time.time()) + '_cfg.json'
         #check if filename already exists
         if os.path.exists(output_dir + filename):
             print('File already exists')
