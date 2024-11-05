@@ -105,6 +105,41 @@ class MLConfig():
             directory = os.path.dirname(os.path.realpath(__file__))
             #export config
             self.export_file(directory + '/outputs/')
+            
+    def read_input_config_string(self, inputStr):
+        '''
+        Reads a json string with the following structure:
+        {
+            "ml": "ml_name",
+            "whitelist": ["hp1", "hp2", "hp3"]
+            "hpo": {
+                "hpo_name": ["hpo1", "hpo2", "hpo3"],
+                "iterations": 100
+            }
+        }
+        '''
+        data = json.loads(inputStr)
+        self.ml_import(data['ml'])
+        #check if whitelist and blacklist are defined
+        whitelist = data['whitelist'] if 'whitelist' in data else []
+        #get hyperparameters
+        hps = self.ml.get_hps()
+        #filter hyperparameters
+        hps = {k: v for k, v in hps.items() if k in whitelist}
+        self.set_hps(hps)
+        if 'hpo' in data:
+            self.set_hpocfg(data['hpo'])
+        else:
+            #if not, look through the hpo folder and get the number of modules
+            hpo_list = []
+            for importer, modname, ispkg in iter_modules(hpo.__path__):
+                hpo_list.append(modname)
+            self.set_hpocfg({'hpo_name': hpo_list, 'iterations': 100})
+
+        #find directory of this file
+        directory = os.path.dirname(os.path.realpath(__file__))
+        #export config
+        self.export_file(directory + '/outputs/')
 
 
 if __name__ == '__main__':
