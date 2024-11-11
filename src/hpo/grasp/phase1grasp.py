@@ -14,8 +14,6 @@ class Construction:
         self.timelimit = timelimit
 
     @staticmethod
-    r
-
     def building_phase(self, x_train, y_train, x_val, y_val, start_time):
         # print('\nStarting building phase...')
         best_intermediate_combinations = PriorityQueue()

@@ -102,14 +102,16 @@ class loaderHPO():
                 "time": time
             }
         
-    def export_results(self):
+    def export_results(self, directory = None):
         filename = 'results_' + str(time.time()) + '.json'
-        directory = os.path.dirname(os.path.realpath(__file__))
-        if os.path.exists(directory + '/outputs/' + filename):
+        if directory is None:
+            directory = os.path.dirname(os.path.realpath(__file__))
+            directory = directory + '/outputs/'
+        if os.path.exists(directory + filename):
             print('File already exists')
             raise Exception('File already exists')
         else:
-            with open(directory + '/outputs/' + filename, 'w+') as f:
+            with open(directory + filename, 'w+') as f:
                 f.write(json.dumps(self.results, indent=4))
                 
                 
@@ -124,4 +126,3 @@ if __name__ == '__main__':
     hpoload.load_config(sys.argv[1])
     hpoload.run_hpo()
     hpoload.export_results()
-    
