@@ -69,7 +69,7 @@ class MLConfig():
         else:
             raise Exception('ML not found')
         
-    def read_input_config(self, filename):
+    def read_input_config(self, filename, output_dir = None):
         '''
         Opens a json file with the following structure:
         {
@@ -102,11 +102,12 @@ class MLConfig():
                 self.set_hpocfg({'hpo_name': hpo_list, 'iterations': 100})
 
             #find directory of this file
-            directory = os.path.dirname(os.path.realpath(__file__))
+            if output_dir is None:
+                output_dir = os.path.dirname(os.path.realpath(__file__)) + '/outputs/'
             #export config
-            self.export_file(directory + '/outputs/')
+            self.export_file(output_dir)
             
-    def read_input_config_string(self, inputStr):
+    def read_input_config_string(self, inputStr, output_dir = None):
         '''
         Reads a json string with the following structure:
         {
@@ -137,9 +138,10 @@ class MLConfig():
             self.set_hpocfg({'hpo_name': hpo_list, 'iterations': 100})
 
         #find directory of this file
-        directory = os.path.dirname(os.path.realpath(__file__))
+        if output_dir is None:
+            output_dir = os.path.dirname(os.path.realpath(__file__))
         #export config
-        self.export_file(directory + '/outputs/')
+        self.export_file(output_dir)
 
 
 if __name__ == '__main__':

@@ -55,7 +55,7 @@ class Dataload():
         self.data["label"] = self.data[column_name]
         self.data = self.data.drop(columns=[column_name])
 
-    def load_data_config(self, filename, data_path):
+    def load_data_config(self, filename, data_path, output_dir = None):
         '''
         Reads a json file with the following structure:
         {
@@ -83,8 +83,9 @@ class Dataload():
             self.data = self.data.apply(pd.to_numeric, errors='coerce')
             self.clean_data()
             self.split_data(data['training_size'], data['testing_size'], data['validation_size'])
-            directory = os.path.dirname(os.path.realpath(__file__))
-            self.export_data(directory + '/outputs/')
+            if output_dir is None:
+                output_dir = os.path.dirname(os.path.realpath(__file__)) + '/outputs/'
+            self.export_data(output_dir)
 
 
 if __name__ == '__main__':
