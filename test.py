@@ -1,6 +1,9 @@
-#enumerate files in a directory
+#find a .csv file in the input directory
 import os
 
-#iterate over all files in the directory
-for file in os.listdir(os.path.dirname(__file__)):
-    print(file)
+#use a for loop to iterate through the files in the directory
+for filename in os.listdir('input/'):
+    #check if the file is a .csv file
+    if filename.endswith('.csv'):
+        #print the name of the file
+        print(filename)

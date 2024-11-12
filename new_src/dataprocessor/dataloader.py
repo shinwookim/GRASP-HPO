@@ -86,7 +86,37 @@ class Dataload():
             if output_dir is None:
                 output_dir = os.path.dirname(os.path.realpath(__file__)) + '/outputs/'
             self.export_data(output_dir)
-
+            
+    def load_data_config_str(self, json_str, datapath, output_dir = None):
+        '''
+        Reads a json string with the following structure:
+        {
+            "training_size": 0.7,
+            "testing_size": 0.2,
+            "validation_size": 0.1,
+            "label_column": "column_name",
+            "columns_to_drop": ["column1", "column2", ...]
+            "column_types": {
+                "column1": "type1",
+                "column2": "type2",
+                ...
+            }
+        }
+        '''
+        data = json.loads(json_str)
+        self.load_data(datapath)
+        self.set_label_column(data['label_column'])
+        self.data = self.data.drop(columns=data['columns_to_drop'])
+        if 'column_types' in data:
+            for column, dtype in data['column_types'].items():
+                self.data[column] = self.data[column].astype(dtype)
+        #coerce to numeric
+        self.data = self.data.apply(pd.to_numeric, errors='coerce')
+        self.clean_data()
+        self.split_data(data['training_size'], data['testing_size'], data['validation_size'])
+        if output_dir is None:
+            output_dir = os.path.dirname(os.path.realpath(__file__)) + '/outputs/'
+        self.export_data(output_dir)
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
