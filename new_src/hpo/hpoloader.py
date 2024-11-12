@@ -28,6 +28,14 @@ class loaderHPO():
             for hpo in data['hpo']['hpo_name']:
                 self.load_hpo(hpo)
     
+    def load_config_str(self, json_str):
+        data = json.loads(json_str)
+        self.ml_import(data['ml'])
+        self.hps = data['hps']
+        self.num_samples = data['hpo']['iterations']
+        for hpo in data['hpo']['hpo_name']:
+            self.load_hpo(hpo)
+    
     def load_data(self, filename):
         #loads a csv file
         with open(filename, 'r') as f:
