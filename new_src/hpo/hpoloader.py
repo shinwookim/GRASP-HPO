@@ -57,7 +57,6 @@ class loaderHPO():
     
     def load_hpo(self, hpo_name):
         if self.hpo_search(hpo_name):
-            print(hpo_name)
             obj_module = getattr(hpo_mods, hpo_name)
             obj_class = getattr(obj_module, hpo_name)
             obj = obj_class()
@@ -98,12 +97,10 @@ class loaderHPO():
 
     def run_hpo(self):
         for hpo in self.hpo:
-            print(hpo.name)
             results = hpo.hyperparameter_optimization(self.num_samples)
             best_params = results[0]
             best_scores = results[1]
             time = results[2]
-            print(hpo.name)
             self.results[hpo.name] = {
                 "best_params": best_params,
                 "best_scores": best_scores,

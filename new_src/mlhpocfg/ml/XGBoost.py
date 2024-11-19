@@ -1,8 +1,6 @@
 from sklearn.metrics import f1_score
 import xgboost as xgb
 
-import xgboost as xgb
-
 class XGBoost():
     def __init__(self):
         self.name = 'XGBoost'
