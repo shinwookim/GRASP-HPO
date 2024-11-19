@@ -45,6 +45,15 @@ class Dataload():
         self.training_data.to_csv(output_dir + 'training_data_' + str(time.time()) + '.csv')
         self.testing_data.to_csv(output_dir + 'testing_data_' + str(time.time()) + '.csv')
         self.validation_data.to_csv(output_dir + 'validation_data_' + str(time.time()) + '.csv')
+        
+    def export_train(self, output_dir):
+        self.training_data.to_csv(output_dir + 'training_data_' + str(time.time()) + '.csv')
+        
+    def export_test(self, output_dir):
+        self.testing_data.to_csv(output_dir + 'testing_data_' + str(time.time()) + '.csv')
+
+    def export_val(self, output_dir):
+        self.validation_data.to_csv(output_dir + 'validation_data_' + str(time.time()) + '.csv')
 
     def clean_data(self):
         self.data = self.data.dropna(axis=1)
@@ -85,7 +94,12 @@ class Dataload():
             self.split_data(data['training_size'], data['testing_size'], data['validation_size'])
             if output_dir is None:
                 output_dir = os.path.dirname(os.path.realpath(__file__)) + '/outputs/'
-            self.export_data(output_dir)
+            if type(output_dir) == list:
+                self.export_train(output_dir[0])
+                self.export_test(output_dir[1])
+                self.export_val(output_dir[2])
+            else:
+                self.export_data(output_dir)
             
     def load_data_config_str(self, json_str, datapath, output_dir = None):
         '''
@@ -116,7 +130,12 @@ class Dataload():
         self.split_data(data['training_size'], data['testing_size'], data['validation_size'])
         if output_dir is None:
             output_dir = os.path.dirname(os.path.realpath(__file__)) + '/outputs/'
-        self.export_data(output_dir)
+        if type(output_dir) == list:
+            self.export_train(output_dir[0])
+            self.export_test(output_dir[1])
+            self.export_val(output_dir[2])
+        else:
+            self.export_data(output_dir)
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
