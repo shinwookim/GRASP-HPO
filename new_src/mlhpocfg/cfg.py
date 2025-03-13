@@ -90,7 +90,10 @@ class MLConfig():
             #get hyperparameters
             hps = self.ml.get_hps()
             #filter hyperparameters
-            hps = {k: v for k, v in hps.items() if k in whitelist}
+            if len(whitelist) > 0:
+                hps = {k: v for k, v in hps.items() if k in whitelist}
+            else:
+                hps = {k: v for k, v in hps.items()}
             self.set_hps(hps)
             if 'hpo' in data:
                 self.set_hpocfg(data['hpo'])
@@ -126,7 +129,10 @@ class MLConfig():
         #get hyperparameters
         hps = self.ml.get_hps()
         #filter hyperparameters
-        hps = {k: v for k, v in hps.items() if k in whitelist}
+        if len(whitelist) > 0:
+            hps = {k: v for k, v in hps.items() if k in whitelist}
+        else:
+            hps = {k: v for k, v in hps.items()}
         self.set_hps(hps)
         if 'hpo' in data:
             self.set_hpocfg(data['hpo'])

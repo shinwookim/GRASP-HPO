@@ -1,5 +1,6 @@
 from sklearn.metrics import f1_score
 import xgboost as xgb
+import sys
 
 class XGBoost():
     def __init__(self):
@@ -7,15 +8,15 @@ class XGBoost():
         self.hp = {
             "max_depth": {
                 "type": "int",
-                "range": [0, None]
+                "range": [0, sys.maxsize]
             },
             "max_leaves": {
                 "type": "int",
-                "range": [0, None]
+                "range": [0, sys.maxsize]
             },
             "max_bin": {
                 "type": "int",
-                "range": [0, None]
+                "range": [0, sys.maxsize]
             },
             "grow_policy": {
                 "type": "categorical",
@@ -23,7 +24,7 @@ class XGBoost():
             },
             "learning_rate": {
                 "type": "float",
-                "range": [0.0, None]
+                "range": [0.0, sys.maxsize]
             },
             "verbosity": {
                 "type": "int",
@@ -43,19 +44,19 @@ class XGBoost():
             },
             "n_jobs": {
                 "type": "int",
-                "range": [0, None]
+                "range": [0, sys.maxsize]
             },
             "gamma": {
                 "type": "float",
-                "range": [0.0, None]
+                "range": [0.0, 1e3]
             },
             "min_child_weight": {
                 "type": "float",
-                "range": [0.0, None]
+                "range": [0.0, 1e3]
             },
             "max_delta_step": {
                 "type": "float",
-                "range": [0.0, None]
+                "range": [0.0, 1e3]
             },
             "subsample": {
                 "type": "float",
@@ -79,21 +80,24 @@ class XGBoost():
             },
             "reg_alpha": {
                 "type": "float",
-                "range": [0.0, None]
+                "range": [0.0, 1e3]
             },
             "reg_lambda": {
                 "type": "float",
-                "range": [0.0, None]
+                "range": [0.0, 1e3]
             },
             "base_score": {
                 "type": "float",
-                "range": [0.0, None]
+                "range": [0.0, 1e3]
             },
             "random_state": {
                 "type": "int",
-                "range": [0, None]
+                "range": [0, 1e3]
             },
-            
+            "eta": {
+                "type": "float",
+                "range": [0.0, 1e3]
+            },
         }
         self.model = None
 
