@@ -39,12 +39,16 @@ class Dataload():
             raise Exception('Split sizes do not add up to 1')
         self.training_data = self.data.sample(frac=training_size)
         self.testing_data = self.data.drop(self.training_data.index).sample(frac=testing_size)
-        self.validation_data = self.data.drop(self.training_data.index).drop(self.testing_data.index)
+        if validation_size != 0:
+            self.validation_data = self.data.drop(self.training_data.index).drop(self.testing_data.index)
+        else:
+            self.validation_data = None
 
     def export_data(self, output_dir):
         self.training_data.to_csv(output_dir + 'training_data_' + str(time.time()) + '.csv')
         self.testing_data.to_csv(output_dir + 'testing_data_' + str(time.time()) + '.csv')
-        self.validation_data.to_csv(output_dir + 'validation_data_' + str(time.time()) + '.csv')
+        if self.validation_data is not None:
+            self.validation_data.to_csv(output_dir + 'validation_data_' + str(time.time()) + '.csv')
         
     def export_train(self, output_dir):
         self.training_data.to_csv(output_dir + 'training_data_' + str(time.time()) + '.csv')
@@ -53,10 +57,12 @@ class Dataload():
         self.testing_data.to_csv(output_dir + 'testing_data_' + str(time.time()) + '.csv')
 
     def export_val(self, output_dir):
-        self.validation_data.to_csv(output_dir + 'validation_data_' + str(time.time()) + '.csv')
+        if self.validation_data is not None:
+            self.validation_data.to_csv(output_dir + 'validation_data_' + str(time.time()) + '.csv')
 
     def clean_data(self):
-        self.data = self.data.dropna(axis=1)
+        self.data = self.data.dropna(axis=1, how='all')
+        self.data = self.data.dropna(axis=0)
 
     def set_label_column(self, column_name):
         label_encoder = LabelEncoder()
@@ -84,7 +90,8 @@ class Dataload():
             data = json.load(f)
             self.load_data(data_path)
             self.set_label_column(data['label_column'])
-            self.data = self.data.drop(columns=data['columns_to_drop'])
+            if len(data['columns_to_drop']) > 0:
+                self.data = self.data.drop(columns=data['columns_to_drop'])
             if 'column_types' in data:
                 for column, dtype in data['column_types'].items():
                     self.data[column] = self.data[column].astype(dtype)
@@ -120,7 +127,8 @@ class Dataload():
         data = json.loads(json_str)
         self.load_data(datapath)
         self.set_label_column(data['label_column'])
-        self.data = self.data.drop(columns=data['columns_to_drop'])
+        if len(data['columns_to_drop']) > 0:
+                self.data = self.data.drop(columns=data['columns_to_drop'])
         if 'column_types' in data:
             for column, dtype in data['column_types'].items():
                 self.data[column] = self.data[column].astype(dtype)
