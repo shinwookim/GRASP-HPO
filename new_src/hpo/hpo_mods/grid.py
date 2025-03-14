@@ -49,11 +49,30 @@ class grid():
         self.ml = ml
         
     def hyperparameter_optimization(self, num_samples=10):
+        import ray
+        # Put large datasets in Ray's object store
+        x_train_ref = ray.put(self.x_train)
+        y_train_ref = ray.put(self.y_train)
+        x_val_ref = ray.put(self.x_val)
+        y_val_ref = ray.put(self.y_val)
+
+        # Reference to the ML model
+        ml_ref = ray.put(self.ml)
+
         def train_model(config: dict):
-            f1 = self.ml.train(self.x_train, self.y_train, self.x_val, self.y_val, config)
+            # Get data from object store
+            x_train = ray.get(x_train_ref)
+            y_train = ray.get(y_train_ref)
+            x_val = ray.get(x_val_ref)
+            y_val = ray.get(y_val_ref)
+            ml = ray.get(ml_ref)
+
+            # Train using retrieved data
+            f1 = ml.train(x_train, y_train, x_val, y_val, config)
             return {"f1_score": f1}
+
         tuner_search_space = self.hps
-        
+
         tuner = tune.Tuner(
             train_model,
             param_space=tuner_search_space,
@@ -66,13 +85,13 @@ class grid():
                 verbose=0
             ),
         )
-        
+
         self.results = tuner.fit()
-        
+
         self.best_params = self.results.get_best_result().config
-        
+
         df = self.results.get_dataframe()
         self.best_scores = df["f1_score"].tolist()
         self.time = df["time_total_s"].cumsum().tolist()
-        
+
         return (self.best_params, self.best_scores, self.time)
