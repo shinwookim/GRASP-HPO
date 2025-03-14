@@ -53,7 +53,10 @@ class loaderHPO():
         self.test = self.load_data(filename)
     
     def load_val(self, filename):
-        self.val = self.load_data(filename)
+        if filename == "None":
+            self.val = None
+        else:
+            self.val = self.load_data(filename)
     
     def load_hpo(self, hpo_name):
         if self.hpo_search(hpo_name):
@@ -112,6 +115,8 @@ class loaderHPO():
         if directory is None:
             directory = os.path.dirname(os.path.realpath(__file__))
             directory = directory + '/outputs/'
+        if not os.path.exists(directory):
+            os.makedirs(directory)
         if os.path.exists(directory + filename):
             print('File already exists')
             raise Exception('File already exists')
