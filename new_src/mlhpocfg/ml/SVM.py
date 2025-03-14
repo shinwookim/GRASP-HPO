@@ -19,7 +19,7 @@ class SVM():
             },
             "tol": {
                 "type": "float",
-                "range": [-1e4, 1e3]
+                "range": [0.0, 1e3]
             },
             "C": {
                 "type": "float",
