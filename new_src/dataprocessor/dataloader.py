@@ -61,6 +61,8 @@ class Dataload():
             self.validation_data.to_csv(output_dir + 'validation_data_' + str(time.time()) + '.csv')
 
     def clean_data(self):
+        #replace all inf and -inf with nan
+        self.data = self.data.replace([float('-inf'), float('inf')], pd.NA)
         self.data = self.data.dropna(axis=1, how='all')
         self.data = self.data.dropna(axis=0)
 
