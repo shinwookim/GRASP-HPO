@@ -51,21 +51,41 @@ class bohb():
         self.ml = ml
         
     def hyperparameter_optimization(self, num_samples=10):
+        import ray
+        
+        # Put large datasets in Ray's object store
+        x_train_ref = ray.put(self.x_train)
+        y_train_ref = ray.put(self.y_train)
+        x_val_ref = ray.put(self.x_val)
+        y_val_ref = ray.put(self.y_val)
+        
+        # Reference to the ML model
+        ml_ref = ray.put(self.ml)
+        
         def train_model(config: dict):
-            f1 = self.ml.train(self.x_train, self.y_train, self.x_val, self.y_val, config)
+            # Get data from object store
+            x_train = ray.get(x_train_ref)
+            y_train = ray.get(y_train_ref)
+            x_val = ray.get(x_val_ref)
+            y_val = ray.get(y_val_ref)
+            ml = ray.get(ml_ref)
+            
+            # Train using retrieved data
+            f1 = ml.train(x_train, y_train, x_val, y_val, config)
             return {"f1_score": f1}
+        
         tuner_search_space = self.hps
-
+    
         algo = TuneBOHB(
             metric="f1_score",
             mode="max",
         )
         
         scheduler = HyperBandForBOHB(
-            time_attr="training_iteration",  # Each iteration is a training step
+            time_attr="training_iteration",
             max_t=100,
             reduction_factor=4,
-            stop_last_trials=True,# Maximum number of training iterations
+            stop_last_trials=True,
         )
         
         run_config = RunConfig(verbose=0)
@@ -73,7 +93,11 @@ class bohb():
         tuner = tune.Tuner(
             train_model,
             tune_config=tune.TuneConfig(
-                mode="max", metric="f1_score", scheduler=scheduler, num_samples=num_samples, search_alg=algo
+                mode="max", 
+                metric="f1_score", 
+                scheduler=scheduler, 
+                num_samples=num_samples, 
+                search_alg=algo
             ),
             param_space=tuner_search_space,
             run_config=run_config,
