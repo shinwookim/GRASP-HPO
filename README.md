@@ -29,6 +29,68 @@ To add a new HPO algorithm to the setup for testing, you'll need to write a new 
 
 To add a new dataset to the setup for testing, have whatever method your use to load/create the new dataset return an instance of the `Dataset()` class shown, with a data matrix (number of samples (rows) x number of features (cols)) implemented as a Pandas DataFrame and a target array (length equal to the number of samples) implemented as a Pandas Series. Then add a new elif statement to the `load_dataset()` method in the DatasetFactory class with the string you want to use to identify the class and return the class function. Then add the dataset id string to the list in the main method with the other dataset id strings, and it should now use your new dataset in the testing routine.
 
+## How to use
+To use the framework for HPO tuning on specific datasets, you will need the following:
+- Ensure you have the python modules installed as listed above
+- Ensure you have cloned the repo to your local filesystem
+- Ensure you are in the directory GRASP-HPO
+
+You will first need to create a config JSON file for your desired ML algorithm and HPO modules.
+
+Here is an example of tuning all hyperparameters of SVM using grid search (note the iteration number does not apply in this case)
+```
+{
+    "ml": "SVM",
+    "whitelist": [],
+    "hpo": {
+        "hpo_name": ["grid"],
+        "iterations": 100
+    }
+}
+```
+
+You can then run the python module to generate the hyperparameters, their types and ranges with the following command:
+```
+python -m new_src.ml.cfg filename.json
+```
+
+This will create a corresponding json file inside the 'new_src/ml/outputs' folder, which you can either use straight away or customize ranges and values.
+
+Following this, you can also divide your own dataset and clean it in a similar approach.
+
+You can provide a JSON file with the following format:
+```
+{
+    "training_size": 0.6,
+    "testing_size": 0.3,
+    "validation_size": 0.1,
+    "label_column": " Label",
+    "columns_to_drop": ["Flow ID", " Source IP", " Destination IP", " Timestamp"]
+}
+```
+
+This allows you to control what columns you want to keep, what columns you want to remove and the label/class column.
+
+Note this will coerce all values into either ints or floats.
+
+You run this with the following:
+```
+python -m new_src.dataprocessor.dataloader config_file.json dataset.csv
+```
+
+This will generate three files or two if you set validation size to 0 in the 'new_src/dataprocessor/outputs' folder
+
+You can perform the data cleaning yourself if you would like.
+
+To finally run the HPO on your datasets, you do the following:
+```
+python -m new_src.hpo.hpoloader hpo_cfg.json training.csv testing.csv valiate.csv
+```
+
+This will run the HPO algorithms on the ML algorithm as specified in the `hpo_cfg.json` file on the csv files.
+
+The outputs will be found in the 'new_src/hpo/outputs' folder. It will contain the best hyperparametes, the time taken for each iteration, and the f1 score evolution.
+
 ## Authors
 This project was developed a part of the CS 1980 Capstone course at the [University of Pittsburgh](https://pitt.edu). The main contributors are: **Shinwoo Kim**, **Enoch Li**, **Jack Bellamy**, **Zi Han Ding**, **Zane Kissel**, **Gabriel Otsuka**.
 

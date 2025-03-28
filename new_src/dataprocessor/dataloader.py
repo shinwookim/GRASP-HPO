@@ -4,6 +4,7 @@ import pathlib
 import json
 import time
 import sys
+import numpy as np
 
 from sklearn.preprocessing import LabelEncoder
 
@@ -61,10 +62,16 @@ class Dataload():
             self.validation_data.to_csv(output_dir + 'validation_data_' + str(time.time()) + '.csv')
 
     def clean_data(self):
-        #replace all inf and -inf with nan
-        self.data = self.data.replace([float('-inf'), float('inf')], pd.NA)
-        self.data = self.data.dropna(axis=1, how='all')
+        # First identify columns that are numeric
+        numeric_cols = self.data.select_dtypes(include=np.number).columns
+        # Then only replace infinities in numeric columns
+        for col in numeric_cols:
+            self.data[col] = self.data[col].replace([float('-inf'), float('inf')], np.nan)
+            
+        # Then drop rows with NaN values
         self.data = self.data.dropna(axis=0)
+        # And drop columns that are all NaN
+        self.data = self.data.dropna(axis=1, how='all')
 
     def set_label_column(self, column_name):
         label_encoder = LabelEncoder()
