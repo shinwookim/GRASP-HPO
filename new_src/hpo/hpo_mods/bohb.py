@@ -33,13 +33,17 @@ class bohb():
             }
         }
         '''
+        config_space = ConfigurationSpace()
+    
         for k, v in hps.items():
             if v["type"] == "categorical":
-                self.hps[k] = tune.choice(v["range"])
+                config_space.add_hyperparameter(CategoricalHyperparameter(k, choices=v["range"]))
             elif v["type"] == "float":
-                self.hps[k] = tune.uniform(*v["range"])
+                config_space.add_hyperparameter(UniformFloatHyperparameter(k, lower=v["range"][0], upper=v["range"][1]))
             elif v["type"] == "int":
-                self.hps[k] = tune.randint(*v["range"])
+                config_space.add_hyperparameter(UniformIntegerHyperparameter(k, lower=v["range"][0], upper=v["range"][1]))
+        
+        self.hps = config_space
     
     def set_data(self, x_train, y_train, x_val, y_val):
         self.x_train = x_train
@@ -79,6 +83,7 @@ class bohb():
         algo = TuneBOHB(
             metric="f1_score",
             mode="max",
+            space=self.hps,
         )
         
         scheduler = HyperBandForBOHB(
@@ -99,7 +104,6 @@ class bohb():
                 num_samples=num_samples, 
                 search_alg=algo
             ),
-            param_space=tuner_search_space,
             run_config=run_config,
         )
         

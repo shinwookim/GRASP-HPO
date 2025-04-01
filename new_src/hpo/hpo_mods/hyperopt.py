@@ -80,8 +80,6 @@ class hyperopt():
             n_initial_points=2,
         )
         
-        algo = ConcurrencyLimiter(algo, max_concurrent=1)
-        
         scheduler = ASHAScheduler(
             time_attr="training_iteration",
             max_t=100,
