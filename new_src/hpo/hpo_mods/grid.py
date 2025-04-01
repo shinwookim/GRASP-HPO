@@ -77,7 +77,7 @@ class grid():
             train_model,
             param_space=tuner_search_space,
             tune_config=tune.TuneConfig(
-                num_samples=num_samples,
+                num_samples=1,
                 metric="f1_score",
                 mode="max",
             ),
